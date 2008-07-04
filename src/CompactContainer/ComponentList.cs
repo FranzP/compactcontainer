@@ -16,7 +16,8 @@ namespace InversionOfControl
 
 		public void Add(ComponentInfo ci)
 		{
-			if (ci.Lifestyle == LifestyleType.Singleton) {
+			if (ci.Lifestyle == LifestyleType.Singleton)
+			{
 				singletonsCount++;
 			}
 			list.Add(ci);
@@ -39,33 +40,33 @@ namespace InversionOfControl
 		public List<ComponentInfo> GetAllImplementorsFor(Type serviceType)
 		{
 			return list.FindAll(delegate(ComponentInfo ci)
-			                    	{
-			                    		return (ci.ServiceType == serviceType);
-			                    	});
+			{
+				return (ci.ServiceType == serviceType);
+			});
 		}
 
 		public ComponentInfo FindServiceType(Type serviceType)
 		{
 			return list.Find(delegate(ComponentInfo ci)
-			                 	{
-			                 		return (ci.ServiceType.Equals(serviceType));
-			                 	});
+			{
+				return (ci.ServiceType.Equals(serviceType));
+			});
 		}
-		
+
 		public ComponentInfo FindClassType(Type classType)
 		{
 			return list.Find(delegate(ComponentInfo ci)
-			                 	{
-			                 		return (ci.Classtype.Equals(classType));
-			                 	});
+			{
+				return (ci.Classtype.Equals(classType));
+			});
 		}
-		
+
 		public ComponentInfo FindKey(string key)
 		{
 			return list.Find(delegate(ComponentInfo ci)
-			                 	{
-			                 		return (ci.Key.Equals(key));
-			                 	});
+			{
+				return (ci.Key.Equals(key));
+			});
 		}
 
 
@@ -76,7 +77,7 @@ namespace InversionOfControl
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return ((IEnumerable) list).GetEnumerator();
+			return ((IEnumerable)list).GetEnumerator();
 		}
 
 	}

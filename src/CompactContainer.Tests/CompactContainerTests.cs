@@ -1,4 +1,5 @@
-﻿using InversionOfControl;
+﻿using System;
+using InversionOfControl;
 using MbUnit.Framework;
 
 namespace InversionOfControl.Tests
@@ -20,8 +21,8 @@ namespace InversionOfControl.Tests
 			Assert.IsFalse(container.HasComponent("comp.a"));
 			Assert.IsFalse(container.HasComponent(typeof(IComponentA)));
 
-			container.AddComponent("comp.a", typeof (IComponentA), typeof (ComponentA));
-            
+			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
+
 			Assert.IsTrue(container.HasComponent(typeof(IComponentA)));
 			Assert.IsTrue(container.HasComponent("comp.a"));
 		}
@@ -39,8 +40,8 @@ namespace InversionOfControl.Tests
 		{
 			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
 
-			IComponentA compA1 = (IComponentA) container.Resolve(typeof (IComponentA));
-			IComponentA compA2 = (IComponentA) container.Resolve("comp.a");
+			IComponentA compA1 = (IComponentA)container.Resolve(typeof(IComponentA));
+			IComponentA compA2 = (IComponentA)container.Resolve("comp.a");
 
 			Assert.IsNotNull(compA1);
 			Assert.AreSame(compA1, compA2);
@@ -140,7 +141,7 @@ namespace InversionOfControl.Tests
 			container.AddComponent("comp.a2", typeof(IComponentA), typeof(ComponentAA));
 			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
 
-			object[] compsA1 = container.GetServices(typeof (IComponentA));
+			object[] compsA1 = container.GetServices(typeof(IComponentA));
 			Assert.AreEqual(2, compsA1.Length);
 
 			IComponentA[] compsA2 = container.GetServices<IComponentA>();
@@ -187,5 +188,59 @@ namespace InversionOfControl.Tests
 			Assert.AreEqual(container.SingletonsInstanciatedCount, 3);
 		}
 
+		[Test]
+		public void CanResolveWithHandler()
+		{
+			container.RegisterHandler<IStartable>(new StartableHandler());
+			container.AddComponent("startable.service", typeof(IComponentU), typeof(StartableComponent));
+
+			IComponentU cu = container.Resolve<IComponentU>();
+
+			Assert.AreEqual(1, cu.A);
+		}
+
+	}
+
+	public class StartableHandler : AbstractHandler
+	{
+		public override object Create(Type classType)
+		{
+			IStartable product = (IStartable)Container.DefaultHandler.Create(classType);
+			product.Start();
+			return product;
+		}
+	}
+
+
+	public interface IStartable
+	{
+		void Start();
+		void Stop();
+	}
+
+	public class StartableComponent : IComponentU, IStartable
+	{
+		public int a;
+
+		public int A
+		{
+			get { return a; }
+			set { a = value; }
+		}
+
+		public void Start()
+		{
+			a = 1;
+		}
+
+		public void Stop()
+		{
+			a = 2;
+		}
+	}
+
+	public interface IComponentU
+	{
+		int A { get; set; }
 	}
 }

@@ -1,18 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 
 namespace InversionOfControl
 {
 	public class CompactContainer : ICompactContainer
 	{
 		private int singletonsInstanciatedCount;
+		private readonly DefaultHandler defaultHandler;
 		private readonly ComponentList components = new ComponentList();
+		private readonly Dictionary<Type, IHandler> handlers = new Dictionary<Type, IHandler>();
+
+		public DefaultHandler DefaultHandler
+		{
+			get { return defaultHandler; }
+		}
 
 		public CompactContainer()
 		{
-			AddComponentInstance("condor.container", typeof(ICompactContainer), this);
+			defaultHandler = new DefaultHandler(this);
+			AddComponentInstance("container", typeof(ICompactContainer), this);
 		}
 
 		public ComponentList Components
@@ -42,8 +48,9 @@ namespace InversionOfControl
 
 		public void AddComponent(string key, Type serviceType, Type classType, LifestyleType lifestyle)
 		{
-			if (HasComponent(key)) {
-				throw new CompactContainerException("key ya registrado");
+			if (HasComponent(key))
+			{
+				throw new CompactContainerException("key already registered: " + key);
 			}
 			ComponentInfo ci = new ComponentInfo(key, serviceType, classType, lifestyle);
 			components.Add(ci);
@@ -58,7 +65,7 @@ namespace InversionOfControl
 		{
 			if (HasComponent(key))
 			{
-				throw new CompactContainerException("key ya registrado");
+				throw new CompactContainerException("key already registered");
 			}
 			ComponentInfo ci = new ComponentInfo(key, serviceType, instance.GetType(), LifestyleType.Singleton);
 			ci.Instance = instance;
@@ -81,8 +88,9 @@ namespace InversionOfControl
 		public object Resolve(Type service)
 		{
 			ComponentInfo ci = getComponentInfo(service);
-			if (ci == null) {
-				throw new CompactContainerException(service.Name + " no registrado");
+			if (ci == null)
+			{
+				throw new CompactContainerException(service.Name + " not registered");
 			}
 			return resolveComponent(ci);
 		}
@@ -95,12 +103,12 @@ namespace InversionOfControl
 
 		public T Resolve<T>()
 		{
-			return (T) Resolve(typeof (T));
+			return (T)Resolve(typeof(T));
 		}
 
 		public T Resolve<T>(string key)
 		{
-			return (T) Resolve(key);
+			return (T)Resolve(key);
 		}
 
 		public object[] GetServices(Type serviceType)
@@ -111,26 +119,54 @@ namespace InversionOfControl
 
 			int i = 0;
 			implementors.ForEach(delegate(ComponentInfo ci)
-			                     	{
-			                     		services[i++] = resolveComponent(ci);
-			                     	});
+			{
+				services[i++] = resolveComponent(ci);
+			});
 
 			return services;
 		}
 
 		public T[] GetServices<T>()
 		{
-			List<ComponentInfo> implementors = components.GetAllImplementorsFor(typeof (T));
+			List<ComponentInfo> implementors = components.GetAllImplementorsFor(typeof(T));
 
 			T[] services = new T[implementors.Count];
 
 			int i = 0;
 			implementors.ForEach(delegate(ComponentInfo ci)
-			                     	{
-			                     		services[i++] = (T) resolveComponent(ci);
-			                     	});
+			{
+				services[i++] = (T)resolveComponent(ci);
+			});
 
 			return services;
+		}
+
+		public void RegisterHandler(Type targetType, IHandler handler)
+		{
+			handler.Container = this;
+			handlers.Add(targetType, handler);
+		}
+
+		public void RegisterHandler<T>(IHandler handler)
+		{
+			RegisterHandler(typeof(T), handler);
+		}
+
+		public object TryResolve(Type service)
+		{
+			try
+			{
+				return Resolve(service);
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		public T TryResolve<T>()
+		{
+			return (T)TryResolve(typeof(T));
 		}
 
 		public void Dispose()
@@ -141,7 +177,8 @@ namespace InversionOfControl
 		{
 			ComponentInfo result;
 			result = components.FindServiceType(service);
-			if (result == null) {
+			if (result == null)
+			{
 				result = components.FindClassType(service);
 			}
 			return result;
@@ -154,78 +191,53 @@ namespace InversionOfControl
 
 		private object resolveComponent(ComponentInfo ci)
 		{
-			if (!HasComponent(ci.ServiceType)) {
-				throw new CompactContainerException("Componente no registrado " + ci.ServiceType.Name);
-			}
-			if (ci.IsResolvingDependencies) {
-				throw new CompactContainerException("Referencia circular: " + ci.ServiceType.Name);
-			}
+			lock (ci)
+			{
+				if (!HasComponent(ci.ServiceType))
+				{
+					throw new CompactContainerException("Component not registered " + ci.ServiceType.Name);
+				}
+				if (ci.IsResolvingDependencies)
+				{
+					throw new CompactContainerException("Circular reference: " + ci.ServiceType.Name);
+				}
 
-			switch(ci.Lifestyle) {
-				case (LifestyleType.Singleton):
-					if (ci.Instance == null) {
+				switch (ci.Lifestyle)
+				{
+					case (LifestyleType.Singleton):
+						if (ci.Instance == null)
+						{
+							ci.IsResolvingDependencies = true;
+							ci.Instance = handleCreateNew(ci.Classtype);
+							ci.IsResolvingDependencies = false;
+							singletonsInstanciatedCount++;
+						}
+						return ci.Instance;
+
+					case (LifestyleType.Transient):
 						ci.IsResolvingDependencies = true;
-						ci.Instance = createNew(ci.Classtype);
+						object result = handleCreateNew(ci.Classtype);
 						ci.IsResolvingDependencies = false;
-						singletonsInstanciatedCount++;
-					}
-					return ci.Instance;
+						return result;
+				}
 
-				case (LifestyleType.Transient):
-					ci.IsResolvingDependencies = true;
-					object result = createNew(ci.Classtype);
-					ci.IsResolvingDependencies = false;
-					return result;
+				return null;
 			}
-
-			return null;
 		}
 
-		private object createNew(Type classType)
+		private object handleCreateNew(Type classType)
 		{
-			ConstructorInfo[] constructors = classType.GetConstructors();
-			if (constructors.Length < 1) {
-				throw new CompactContainerException("El tipo " + classType.Name + " debe tener por lo menos un ctor publico");
-			}
+			IHandler handler = defaultHandler;
 
-			ConstructorInfo theConstructor = null;
-			object[] theConstructorParameters = new object[0];
-
-			StringBuilder missingComponents = new StringBuilder();
-
-			foreach (ConstructorInfo constructorInfo in constructors) {
-
-				ParameterInfo[] parameters = constructorInfo.GetParameters();
-				if (parameters.Length > theConstructorParameters.Length
-				    || theConstructor == null) {
-					
-					
-					bool proposeNewConstructor = true;
-					object[] parameterObjects = new object[parameters.Length];
-
-					for (int i = 0; i < parameters.Length; i++) {
-						if (HasComponent(parameters[i].ParameterType)) {
-							parameterObjects[i] = Resolve(parameters[i].ParameterType);
-						}
-						else {
-							missingComponents.Append(parameters[i].ParameterType.Name + "; ");
-							proposeNewConstructor = false;
-							break;
-						}
-					}
-
-					if (proposeNewConstructor) {
-						theConstructor = constructorInfo;
-						theConstructorParameters = parameterObjects;
-					}
+			foreach (KeyValuePair<Type, IHandler> pair in handlers)
+			{
+				if (pair.Key.IsAssignableFrom(classType))
+				{
+					handler = pair.Value;
+					break;
 				}
 			}
-
-			if (theConstructor == null) {
-				throw new CompactContainerException("Missing components: " + missingComponents);
-			}
-
-			return theConstructor.Invoke(theConstructorParameters);
+			return handler.Create(classType);
 		}
 	}
 }

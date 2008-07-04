@@ -50,6 +50,11 @@ namespace InversionOfControl
 			this.classType = classType;
 			this.lifestyle = lifestyle;
 		}
+
+		public override string ToString()
+		{
+			return string.Format("Key:{0} - Service:{1} - Class:{2}", key, serviceType.Name, classType.Name);
+		}
 	}
 
 	public enum LifestyleType

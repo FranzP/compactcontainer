@@ -51,12 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractHandler.cs" />
     <Compile Include="CompactContainer.cs" />
     <Compile Include="CompactContainerException.cs" />
     <Compile Include="ComponentInfo.cs" />
     <Compile Include="ComponentList.cs" />
+    <Compile Include="DefaultHandler.cs" />
     <Compile Include="ICompactContainer.cs" />
     <Compile Include="IContainerConfigurator.cs" />
+    <Compile Include="IHandler.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IPropertyDataResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

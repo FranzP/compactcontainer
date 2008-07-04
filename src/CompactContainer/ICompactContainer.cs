@@ -20,5 +20,8 @@ namespace InversionOfControl
 		T[] GetServices<T>();
 		ComponentList Components { get; }
 		int SingletonsInstanciatedCount { get; }
+		DefaultHandler DefaultHandler { get; }
+		void RegisterHandler(Type targetType, IHandler handler);
+		void RegisterHandler<T>(IHandler handler);
 	}
 }
