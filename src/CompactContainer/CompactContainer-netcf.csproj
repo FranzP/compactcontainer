@@ -52,14 +52,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractHandler.cs" />
+    <Compile Include="AttributedConstructorResolver.cs" />
+    <Compile Include="AttributedHandler.cs" />
     <Compile Include="CompactContainer.cs" />
     <Compile Include="CompactContainerException.cs" />
     <Compile Include="ComponentInfo.cs" />
     <Compile Include="ComponentList.cs" />
+    <Compile Include="ConstructionInfo.cs" />
+    <Compile Include="DefaultConstructorResolver.cs" />
     <Compile Include="DefaultHandler.cs" />
     <Compile Include="ICompactContainer.cs" />
+    <Compile Include="IConstructorResolver.cs" />
     <Compile Include="IContainerConfigurator.cs" />
     <Compile Include="IHandler.cs" />
+    <Compile Include="InjectAttribute.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IPropertyDataResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

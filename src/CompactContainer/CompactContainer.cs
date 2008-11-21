@@ -6,13 +6,14 @@ namespace InversionOfControl
 	public class CompactContainer : ICompactContainer
 	{
 		private int singletonsInstanciatedCount;
-		private readonly DefaultHandler defaultHandler;
+		private IHandler defaultHandler;
 		private readonly ComponentList components = new ComponentList();
 		private readonly Dictionary<Type, IHandler> handlers = new Dictionary<Type, IHandler>();
 
-		public DefaultHandler DefaultHandler
+		public IHandler DefaultHandler
 		{
 			get { return defaultHandler; }
+			set { defaultHandler = value; }
 		}
 
 		public CompactContainer()

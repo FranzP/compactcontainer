@@ -114,6 +114,29 @@ namespace InversionOfControl.Tests
 		}
 
 		[Test]
+		public void CanRegisterAndResolveComponentWithMultipleConstructorsUsingCustomAttribute()
+		{
+			container.DefaultHandler = new AttributedHandler(container);
+			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
+			container.AddComponent("comp.d1", typeof(IComponentD), typeof(ComponentD));
+			container.AddComponent("comp.d2", typeof(IComponentD), typeof(ComponentD));
+
+			IComponentD compD1 = container.Resolve<IComponentD>("comp.d1");
+			Assert.AreEqual(1, compD1.ConstructorUsed);
+			Assert.AreSame(container.Resolve<IComponentA>(), compD1.CompA);
+			Assert.AreSame(null, compD1.CompB);
+
+			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
+
+			IComponentD compD2 = container.Resolve<IComponentD>("comp.d2");
+			Assert.AreEqual(1, compD2.ConstructorUsed);
+			Assert.AreSame(container.Resolve<IComponentA>(), compD2.CompA);
+			Assert.AreSame(null, compD2.CompB);
+
+			Assert.AreNotSame(compD1, compD2);
+		}
+
+		[Test]
 		public void CanAddComponentWithInstance()
 		{
 			IComponentA compA1 = new ComponentA();
