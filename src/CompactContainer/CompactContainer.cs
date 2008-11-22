@@ -7,6 +7,7 @@ namespace InversionOfControl
 	{
 		private int singletonsInstanciatedCount;
 		private IHandler defaultHandler;
+		private LifestyleType defaultLifestyle;
 		private readonly ComponentList components = new ComponentList();
 		private readonly Dictionary<Type, IHandler> handlers = new Dictionary<Type, IHandler>();
 
@@ -16,9 +17,16 @@ namespace InversionOfControl
 			set { defaultHandler = value; }
 		}
 
+		public LifestyleType DefaultLifestyle
+		{
+			get { return defaultLifestyle; }
+			set { defaultLifestyle = value; }
+		}
+
 		public CompactContainer()
 		{
 			defaultHandler = new DefaultHandler(this);
+			defaultLifestyle = LifestyleType.Singleton;
 			AddComponentInstance("container", typeof(ICompactContainer), this);
 		}
 
@@ -32,9 +40,29 @@ namespace InversionOfControl
 			get { return singletonsInstanciatedCount; }
 		}
 
+		public void AddComponent(Type classType)
+		{
+			AddComponent(defaultKey(classType), classType, classType, DefaultLifestyle);
+		}
+
+		public void AddComponent(Type classType, LifestyleType lifestyle)
+		{
+			AddComponent(defaultKey(classType), classType, classType, lifestyle);
+		}
+
+		public void AddComponent(Type serviceType, Type classType)
+		{
+			AddComponent(defaultKey(classType), serviceType, classType, DefaultLifestyle);
+		}
+
+		public void AddComponent(Type serviceType, Type classType, LifestyleType lifestyle)
+		{
+			AddComponent(defaultKey(classType), serviceType, classType, lifestyle);
+		}
+
 		public void AddComponent(string key, Type classType)
 		{
-			AddComponent(key, classType, classType, LifestyleType.Singleton);
+			AddComponent(key, classType, classType, DefaultLifestyle);
 		}
 
 		public void AddComponent(string key, Type classType, LifestyleType lifestyle)
@@ -44,7 +72,7 @@ namespace InversionOfControl
 
 		public void AddComponent(string key, Type serviceType, Type classType)
 		{
-			AddComponent(key, serviceType, classType, LifestyleType.Singleton);
+			AddComponent(key, serviceType, classType, DefaultLifestyle);
 		}
 
 		public void AddComponent(string key, Type serviceType, Type classType, LifestyleType lifestyle)
@@ -174,6 +202,11 @@ namespace InversionOfControl
 		{
 		}
 
+		private string defaultKey(Type service)
+		{
+			return service.FullName;
+		}
+
 		private ComponentInfo getComponentInfo(Type service)
 		{
 			ComponentInfo result;
@@ -181,6 +214,14 @@ namespace InversionOfControl
 			if (result == null)
 			{
 				result = components.FindClassType(service);
+			}
+			if (result == null)
+			{
+				if (!(service.IsInterface || service.IsAbstract))
+				{
+					AddComponent(defaultKey(service), service);
+					result = components.FindServiceType(service);
+				}
 			}
 			return result;
 		}

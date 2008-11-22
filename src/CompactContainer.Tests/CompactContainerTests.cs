@@ -222,6 +222,32 @@ namespace InversionOfControl.Tests
 			Assert.AreEqual(1, cu.A);
 		}
 
+		[Test]
+		public void ResolutionOfClassCanUseDefaultLifestyleTypeTransient()
+		{
+			container.DefaultLifestyle = LifestyleType.Transient;
+			container.AddComponent(typeof(ComponentA));
+			var component1 = container.Resolve<ComponentA>();
+			var component2 = container.Resolve<ComponentA>();
+			Assert.AreNotSame(component1, component2);
+		}
+
+		[Test]
+		public void ResolutionOfClassCanUseDefaultLifestyleTypeSingleton()
+		{
+			container.DefaultLifestyle = LifestyleType.Singleton;
+			container.AddComponent(typeof(ComponentA));
+			var component1 = container.Resolve<ComponentA>();
+			var component2 = container.Resolve<ComponentA>();
+			Assert.AreSame(component1, component2);
+		}
+
+		[Test]
+		public void AutoregisterTypesNotRegisteredWhenResolving()
+		{
+			var a = container.Resolve<ComponentA>();
+			Assert.IsNotNull(a);
+		}
 	}
 
 	public class StartableHandler : AbstractHandler
