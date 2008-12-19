@@ -85,6 +85,15 @@ namespace InversionOfControl
 			components.Add(ci);
 		}
 
+		public void RemoveComponent(string key)
+		{
+			ComponentInfo ci = getComponentInfo(key);
+			if (ci == null)
+				throw new CompactContainerException("component not registered: " + key);
+
+			components.Remove(ci);
+		}
+
 		public void AddComponentInstance(string key, object instance)
 		{
 			AddComponentInstance(key, instance.GetType(), instance);

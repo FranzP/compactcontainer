@@ -248,6 +248,24 @@ namespace InversionOfControl.Tests
 			var a = container.Resolve<ComponentA>();
 			Assert.IsNotNull(a);
 		}
+
+		[Test]
+		public void CanRemoveRegisteredComponent()
+		{
+			container.AddComponent("a", typeof(IComponentA), typeof(ComponentA));
+			Assert.IsInstanceOfType(typeof(ComponentA), container.Resolve<IComponentA>());
+
+			container.RemoveComponent("a");
+			container.AddComponent("a", typeof(IComponentA), typeof(ComponentAA));
+			Assert.IsInstanceOfType(typeof(ComponentAA), container.Resolve<IComponentA>());
+		}
+
+		[Test]
+		[ExpectedException(typeof(CompactContainerException))]
+		public void ThrowsWhenTryingToRemoveNotExistentComponent()
+		{
+			container.RemoveComponent("a");
+		}
 	}
 
 	public class StartableHandler : AbstractHandler

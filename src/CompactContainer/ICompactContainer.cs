@@ -14,6 +14,7 @@ namespace InversionOfControl
 		void AddComponent(string key, Type classType, LifestyleType lifestyle);
 		void AddComponent(string key, Type serviceType, Type classType);
 		void AddComponent(string key, Type serviceType, Type classType, LifestyleType lifestyle);
+		void RemoveComponent(string key);
 		void AddComponentInstance(string key, object instance);
 		void AddComponentInstance(string key, Type serviceType, object instance);
 		object[] GetServices(Type serviceType);
