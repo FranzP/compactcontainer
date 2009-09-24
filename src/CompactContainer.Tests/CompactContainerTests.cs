@@ -1,6 +1,9 @@
 ﻿using System;
-using InversionOfControl;
+#if NUnit
+using NUnit.Framework;
+#else
 using MbUnit.Framework;
+#endif
 
 namespace InversionOfControl.Tests
 {
@@ -18,8 +21,11 @@ namespace InversionOfControl.Tests
 		[Test]
 		public void CanAddComponent()
 		{
-			Assert.IsFalse(container.HasComponent("comp.a"));
-			Assert.IsFalse(container.HasComponent(typeof(IComponentA)));
+			// turn off autoresolution
+		    container.ShouldAutoRegister = false;
+            
+            Assert.IsFalse(container.HasComponent("comp.a"));
+			Assert.IsFalse(container.HasComponent(typeof(IComponentA))); 
 
 			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
 
@@ -94,6 +100,9 @@ namespace InversionOfControl.Tests
 		[Test]
 		public void CanRegisterAndResolveComponentWithMultipleConstructors()
 		{
+            // turn off autoresolution
+		    container.ShouldAutoRegister = false;
+
 			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
 			container.AddComponent("comp.c1", typeof(IComponentC), typeof(ComponentC));
 			container.AddComponent("comp.c2", typeof(IComponentC), typeof(ComponentC));
@@ -243,11 +252,19 @@ namespace InversionOfControl.Tests
 		}
 
 		[Test]
-		public void AutoregisterTypesNotRegisteredWhenResolving()
+		public void AutoregisterConcreteTypesWhenResolving()
 		{
 			var a = container.Resolve<ComponentA>();
 			Assert.IsNotNull(a);
 		}
+
+        [Test]
+        public void AutoregisterInterfaceTypeUsingDefaultNamingConvention()
+        {
+            // new feature - auto register an interface type when a concrete component can be resolved with matching name
+            var a = container.Resolve<IComponentA>();
+            Assert.IsInstanceOfType(typeof(ComponentA), a);
+        }
 
 		[Test]
 		public void CanRemoveRegisteredComponent()

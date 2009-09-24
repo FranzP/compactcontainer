@@ -1,6 +1,9 @@
-﻿using InversionOfControl;
+﻿using Rhino.Mocks;
+#if NUnit
+using NUnit.Framework;
+#else
 using MbUnit.Framework;
-using Rhino.Mocks;
+#endif
 
 namespace InversionOfControl.Tests
 {

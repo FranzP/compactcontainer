@@ -8,6 +8,7 @@ namespace InversionOfControl
 		private int singletonsInstanciatedCount;
 		private IHandler defaultHandler;
 		private LifestyleType defaultLifestyle;
+	    private bool _autoRegister;
 		private readonly ComponentList components = new ComponentList();
 		private readonly Dictionary<Type, IHandler> handlers = new Dictionary<Type, IHandler>();
 
@@ -23,10 +24,17 @@ namespace InversionOfControl
 			set { defaultLifestyle = value; }
 		}
 
+	    public bool ShouldAutoRegister
+	    {
+            get { return _autoRegister; }
+            set { _autoRegister = value; }
+        }
+
 		public CompactContainer()
 		{
 			defaultHandler = new DefaultHandler(this);
 			defaultLifestyle = LifestyleType.Singleton;
+		    _autoRegister = true;
 			AddComponentInstance("container", typeof(ICompactContainer), this);
 		}
 
@@ -231,6 +239,17 @@ namespace InversionOfControl
 					AddComponent(defaultKey(service), service);
 					result = components.FindServiceType(service);
 				}
+                else if (_autoRegister)
+                {
+                    if (service.Name.IndexOf('I') == 0)
+                    {
+                        var concreteName = service.Name.Remove(0, 1);
+                        var concreteServiceName = service.FullName.Replace(service.Name, concreteName);
+                        var concreteServiceType = service.Assembly.GetType(concreteServiceName);
+                        AddComponent(defaultKey(service), service, concreteServiceType);
+                        result = components.FindServiceType(service);
+                    }
+                }
 			}
 			return result;
 		}
