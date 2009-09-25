@@ -1,8 +1,4 @@
-#if NUnit
 using NUnit.Framework;
-#else
-using MbUnit.Framework;
-#endif
 
 namespace InversionOfControl.Tests
 {
