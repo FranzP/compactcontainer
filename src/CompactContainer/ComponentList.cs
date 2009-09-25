@@ -6,19 +6,18 @@ namespace InversionOfControl
 {
 	public class ComponentList : IEnumerable<ComponentInfo>
 	{
-		private int singletonsCount;
 		private readonly List<ComponentInfo> list = new List<ComponentInfo>();
 
-		public int SingletonsCount
-		{
-			get { return singletonsCount; }
-		}
+        internal int SingletonsCount
+        {
+            get; private set;
+        }
 
 		public void Add(ComponentInfo ci)
 		{
 			if (ci.Lifestyle == LifestyleType.Singleton)
 			{
-				singletonsCount++;
+                SingletonsCount++;
 			}
 			list.Add(ci);
 		}
@@ -27,7 +26,7 @@ namespace InversionOfControl
 		{
 			if (ci.Lifestyle == LifestyleType.Singleton)
 			{
-				singletonsCount--;
+                SingletonsCount--;
 			}
 			return list.Remove(ci);
 		}

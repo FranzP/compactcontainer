@@ -273,6 +273,19 @@ namespace InversionOfControl.Tests
 			Assert.IsInstanceOfType(typeof(ComponentAA), container.Resolve<IComponentA>());
 		}
 
+        [Test]
+        public void DisposingContainerAlsoDisposedComponentsInContainer()
+        {
+            container.AddComponent(typeof(DisposableComponent));
+            var disposable = container.Resolve<DisposableComponent>();
+
+            Assert.AreEqual(0, disposable.DisposedCalledCount);
+
+            container.Dispose();
+
+            Assert.AreEqual(1, disposable.DisposedCalledCount);
+        }
+
 		[Test]
 		[ExpectedException(typeof(CompactContainerException))]
 		public void ThrowsWhenTryingToRemoveNotExistentComponent()
@@ -323,4 +336,14 @@ namespace InversionOfControl.Tests
 	{
 		int A { get; set; }
 	}
+
+    public class DisposableComponent : IDisposable
+    {
+        public int DisposedCalledCount { get; set; }
+
+        public void Dispose()
+        {
+            DisposedCalledCount++;
+        }
+    }
 }
