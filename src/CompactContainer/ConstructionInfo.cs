@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace InversionOfControl
+namespace CompactContainer
 {
 	public class ConstructionInfo
 	{

@@ -1,6 +1,6 @@
 using System;
 
-namespace InversionOfControl
+namespace CompactContainer
 {
 	public abstract class AbstractHandler : IHandler
 	{

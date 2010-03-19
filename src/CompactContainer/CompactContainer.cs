@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace InversionOfControl
+namespace CompactContainer
 {
     public class CompactContainer : ICompactContainer
     {

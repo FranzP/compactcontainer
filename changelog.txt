@@ -1,0 +1,6 @@
+19-03-2010
+Created tag v0.1 to mark last version that supports .NET CF 2.0
+Droped .NET CF 2.0 support
+Changed namespace to CompactContainer
+Removed IoC & PropertyDataResolver
+

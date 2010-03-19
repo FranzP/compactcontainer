@@ -1,6 +1,6 @@
 using System;
 
-namespace InversionOfControl
+namespace CompactContainer
 {
 	public class AttributedHandler : DefaultHandler
 	{

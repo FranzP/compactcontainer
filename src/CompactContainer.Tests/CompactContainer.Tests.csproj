@@ -8,9 +8,9 @@
     <ProjectGuid>{CFB95DFE-28D4-42D1-ADEE-3D26BCAEDF36}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InversionOfControl.Tests</RootNamespace>
+    <RootNamespace>CompactContainer.Tests</RootNamespace>
     <AssemblyName>CompactContainer.Tests</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -36,6 +36,9 @@
       <HintPath>..\..\tools\nunit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompactContainerTests.cs" />

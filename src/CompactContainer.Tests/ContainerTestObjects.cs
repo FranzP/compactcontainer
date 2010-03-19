@@ -1,4 +1,4 @@
-namespace InversionOfControl.Tests
+namespace CompactContainer.Tests
 {
 	public class ComponentA : IComponentA
 	{

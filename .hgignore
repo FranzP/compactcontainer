@@ -1,0 +1,11 @@
+syntax: glob
+desktop.ini
+*\bin
+*\obj
+output
+*.sln.cache
+_ReSharper.*
+*.resharper
+*.resharper.user
+*.suo
+glob:*.csproj.user

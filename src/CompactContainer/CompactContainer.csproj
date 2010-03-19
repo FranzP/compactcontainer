@@ -8,9 +8,9 @@
     <ProjectGuid>{C92F0DCE-E472-4380-B5A3-D29CCF73B66A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InversionOfControl</RootNamespace>
+    <RootNamespace>CompactContainer</RootNamespace>
     <AssemblyName>CompactContainer</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -32,6 +32,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractHandler.cs" />
@@ -49,7 +52,6 @@
     <Compile Include="IContainerConfigurator.cs" />
     <Compile Include="IHandler.cs" />
     <Compile Include="InjectAttribute.cs" />
-    <Compile Include="IoC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

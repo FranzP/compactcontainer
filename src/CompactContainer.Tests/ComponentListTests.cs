@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace InversionOfControl.Tests
+namespace CompactContainer.Tests
 {
 	[TestFixture]
 	public class ComponentListTests

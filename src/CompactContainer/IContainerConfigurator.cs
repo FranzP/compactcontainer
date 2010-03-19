@@ -1,4 +1,4 @@
-namespace InversionOfControl
+namespace CompactContainer
 {
 	public interface IContainerConfigurator
 	{

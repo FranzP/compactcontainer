@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Text;
 
-namespace InversionOfControl
+namespace CompactContainer
 {
 	public class AttributedConstructorResolver : DefaultConstructorResolver
 	{
