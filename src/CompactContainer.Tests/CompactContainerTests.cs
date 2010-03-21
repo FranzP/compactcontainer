@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using CompactContainer.Activators;
 using NUnit.Framework;
 
 namespace CompactContainer.Tests
@@ -17,9 +20,6 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanAddComponent()
 		{
-			// turn off autoresolution
-		    container.ShouldAutoRegister = false;
-            
             Assert.IsFalse(container.HasComponent("comp.a"));
 			Assert.IsFalse(container.HasComponent(typeof(IComponentA))); 
 
@@ -96,9 +96,6 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanRegisterAndResolveComponentWithMultipleConstructors()
 		{
-            // turn off autoresolution
-		    container.ShouldAutoRegister = false;
-
 			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
 			container.AddComponent("comp.c1", typeof(IComponentC), typeof(ComponentC));
 			container.AddComponent("comp.c2", typeof(IComponentC), typeof(ComponentC));
@@ -121,7 +118,7 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanRegisterAndResolveComponentWithMultipleConstructorsUsingCustomAttribute()
 		{
-			container.DefaultHandler = new AttributedHandler(container);
+			container.DefaultActivator = new AttributedActivator(container);
 			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
 			container.AddComponent("comp.d1", typeof(IComponentD), typeof(ComponentD));
 			container.AddComponent("comp.d2", typeof(IComponentD), typeof(ComponentD));
@@ -169,14 +166,14 @@ namespace CompactContainer.Tests
 			container.AddComponent("comp.a2", typeof(IComponentA), typeof(ComponentAA));
 			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
 
-			object[] compsA1 = container.GetServices(typeof(IComponentA));
-			Assert.AreEqual(2, compsA1.Length);
+			var compsA1 = container.GetServices(typeof(IComponentA));
+			Assert.AreEqual(2, compsA1.Count());
 
-			IComponentA[] compsA2 = container.GetServices<IComponentA>();
-			Assert.AreEqual(2, compsA1.Length);
+			var compsA2 = container.GetServices<IComponentA>();
+			Assert.AreEqual(2, compsA1.Count());
 
-			Assert.AreEqual((IComponentA)compsA1[0], compsA2[0]);
-			Assert.AreEqual((IComponentA)compsA1[1], compsA2[1]);
+			Assert.AreEqual(compsA1.First(), compsA2.First());
+			Assert.AreEqual(compsA1.ElementAt(1), compsA2.ElementAt(1));
 		}
 
 		[Test]
@@ -200,26 +197,9 @@ namespace CompactContainer.Tests
 		}
 
 		[Test]
-		public void CountSingletonsInitialized()
-		{
-			container.AddComponent("comp.a1", typeof(IComponentA), typeof(ComponentA), LifestyleType.Transient);
-			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
-			Assert.AreEqual(container.SingletonsInstanciatedCount, 1);		// cuenta al contenedor mismo
-
-			container.AddComponentInstance("comp.a2", new ComponentA());
-			Assert.AreEqual(container.SingletonsInstanciatedCount, 2);
-
-			container.Resolve<IComponentA>();
-			Assert.AreEqual(container.SingletonsInstanciatedCount, 2);
-
-			container.Resolve<IComponentB>();
-			Assert.AreEqual(container.SingletonsInstanciatedCount, 3);
-		}
-
-		[Test]
 		public void CanResolveWithHandler()
 		{
-			container.RegisterHandler<IStartable>(new StartableHandler());
+			container.RegisterActivator<IStartable>(new StartableActivator(container));
 			container.AddComponent("startable.service", typeof(IComponentU), typeof(StartableComponent));
 
 			IComponentU cu = container.Resolve<IComponentU>();
@@ -250,6 +230,7 @@ namespace CompactContainer.Tests
 		[Test]
 		public void AutoregisterConcreteTypesWhenResolving()
 		{
+			container.AddComponent(typeof(IAutoRegisterConvention), typeof(AutoRegisterConventions.ConcreteTypeConvention));
 			var a = container.Resolve<ComponentA>();
 			Assert.IsNotNull(a);
 		}
@@ -258,7 +239,8 @@ namespace CompactContainer.Tests
         public void AutoregisterInterfaceTypeUsingDefaultNamingConvention()
         {
             // new feature - auto register an interface type when a concrete component can be resolved with matching name
-            var a = container.Resolve<IComponentA>();
+			container.AddComponent(typeof(IAutoRegisterConvention), typeof(AutoRegisterConventions.AbstractTypeConvention));
+			var a = container.Resolve<IComponentA>();
             Assert.IsInstanceOfType(typeof(ComponentA), a);
         }
 
@@ -292,13 +274,26 @@ namespace CompactContainer.Tests
 		{
 			container.RemoveComponent("a");
 		}
+
+
+		private static int getSingletonsCount(IEnumerable<ComponentInfo> components)
+		{
+			return components.Count(c => c.Lifestyle.Equals(LifestyleType.Singleton));
+		}
 	}
 
-	public class StartableHandler : AbstractHandler
+	public class StartableActivator : IActivator
 	{
-		public override object Create(Type classType)
+		private readonly ICompactContainer container;
+
+		public StartableActivator(ICompactContainer container)
 		{
-			IStartable product = (IStartable)Container.DefaultHandler.Create(classType);
+			this.container = container;
+		}
+
+		public object Create(ComponentInfo componentInfo)
+		{
+			var product = (IStartable)container.DefaultActivator.Create(componentInfo);
 			product.Start();
 			return product;
 		}

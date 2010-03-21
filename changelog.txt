@@ -1,3 +1,11 @@
+21-03-2010
+Renamed Handlers to Activators
+Removed ComponentList and replaced by IEnumerable<ComponentInfo> and extension methods
+Changed default ShouldAutoRegister to false
+Changed responsability of ConstructorResolvers to only resolve which constructor to use and left parameters values determination to DefaultActivator
+Changed auto registering stuff by implementations of IAutoRegisterConvention (it become less discoverable, but I also think that this is not an advisable approach)
+
+
 19-03-2010
 Created tag v0.1 to mark last version that supports .NET CF 2.0
 Droped .NET CF 2.0 support

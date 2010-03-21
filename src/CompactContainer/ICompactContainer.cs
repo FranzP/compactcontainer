@@ -1,15 +1,18 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace CompactContainer
 {
 	public interface ICompactContainer : IDisposable
 	{
-		bool HasComponent(Type service);
-		bool HasComponent(string key);
-		object Resolve(Type service);
-		object Resolve(string key);
-		T Resolve<T>();
-		T Resolve<T>(string key);
+		IActivator DefaultActivator { get; set; }
+		LifestyleType DefaultLifestyle { get; set; }
+		IDependencyResolver DependencyResolver { get; set; }
+
+		IEnumerable<ComponentInfo> Components { get; }
+
+		#region Registration api - will change
 		void AddComponent(string key, Type classType);
 		void AddComponent(string key, Type classType, LifestyleType lifestyle);
 		void AddComponent(string key, Type serviceType, Type classType);
@@ -17,12 +20,20 @@ namespace CompactContainer
 		void RemoveComponent(string key);
 		void AddComponentInstance(string key, object instance);
 		void AddComponentInstance(string key, Type serviceType, object instance);
-		object[] GetServices(Type serviceType);
-		T[] GetServices<T>();
-		ComponentList Components { get; }
-		int SingletonsInstanciatedCount { get; }
-		IHandler DefaultHandler { get; set; }
-		void RegisterHandler(Type targetType, IHandler handler);
-		void RegisterHandler<T>(IHandler handler);
+		#endregion
+
+		bool HasComponent(Type service);
+		bool HasComponent(string key);
+
+		object Resolve(Type service);
+		object Resolve(string key);
+		T Resolve<T>();
+		T Resolve<T>(string key);
+
+		IEnumerable<object> GetServices(Type serviceType);
+		IEnumerable<T> GetServices<T>();
+
+		void RegisterActivator(Type targetType, IActivator activator);
+		void RegisterActivator<T>(IActivator activator);
 	}
 }

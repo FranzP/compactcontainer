@@ -1,54 +1,41 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using CompactContainer.Activators;
+using CompactContainer.DependencyResolvers;
 
 namespace CompactContainer
 {
     public class CompactContainer : ICompactContainer
     {
         private int singletonsInstanciatedCount;
-        private IHandler defaultHandler;
-        private LifestyleType defaultLifestyle;
-        private bool _autoRegister;
-        private readonly ComponentList components = new ComponentList();
-        private readonly Dictionary<Type, IHandler> handlers = new Dictionary<Type, IHandler>();
 
-        public IHandler DefaultHandler
-        {
-            get { return defaultHandler; }
-            set { defaultHandler = value; }
-        }
+    	private readonly List<ComponentInfo> components = new List<ComponentInfo>();
+		private readonly Dictionary<Type, IActivator> activators = new Dictionary<Type, IActivator>();
 
-        public LifestyleType DefaultLifestyle
-        {
-            get { return defaultLifestyle; }
-            set { defaultLifestyle = value; }
-        }
+    	public IActivator DefaultActivator { get; set; }
 
-        public bool ShouldAutoRegister
-        {
-            get { return _autoRegister; }
-            set { _autoRegister = value; }
-        }
+    	public LifestyleType DefaultLifestyle { get; set; }
 
-        public CompactContainer()
+		public IDependencyResolver DependencyResolver { get; set; }
+
+    	public CompactContainer()
         {
-            defaultHandler = new DefaultHandler(this);
-            defaultLifestyle = LifestyleType.Singleton;
-            _autoRegister = true;
+            DefaultActivator = new DefaultActivator(this);
+    		DependencyResolver = new DefaultDependencyResolver(this);
+            DefaultLifestyle = LifestyleType.Singleton;
+
             AddComponentInstance("container", typeof(ICompactContainer), this);
         }
 
-        public ComponentList Components
+        public IEnumerable<ComponentInfo> Components
         {
             get { return components; }
-        }
+		}
 
-        public int SingletonsInstanciatedCount
-        {
-            get { return singletonsInstanciatedCount; }
-        }
+		#region Registration API - will change
 
-        public void AddComponent(Type classType)
+		public void AddComponent(Type classType)
         {
             AddComponent(defaultKey(classType), classType, classType, DefaultLifestyle);
         }
@@ -117,23 +104,25 @@ namespace CompactContainer
             ci.Instance = instance;
             components.Add(ci);
             singletonsInstanciatedCount++;
-        }
+		}
 
-        public bool HasComponent(Type service)
+		#endregion
+
+		public bool HasComponent(Type service)
         {
-            ComponentInfo find = getComponentInfo(service);
+            var find = getComponentInfo(service);
             return (find != null);
         }
 
         public bool HasComponent(string key)
         {
-            ComponentInfo find = getComponentInfo(key);
+            var find = getComponentInfo(key);
             return (find != null);
         }
 
         public object Resolve(Type service)
         {
-            ComponentInfo ci = getComponentInfo(service);
+            var ci = getComponentInfo(service);
             if (ci == null)
             {
                 throw new CompactContainerException(service.Name + " not registered");
@@ -143,139 +132,71 @@ namespace CompactContainer
 
         public object Resolve(string key)
         {
-            ComponentInfo ci = getComponentInfo(key);
+            var ci = getComponentInfo(key);
             return resolveComponent(ci);
         }
 
         public T Resolve<T>()
         {
-            return (T)Resolve(typeof(T));
+            return (T) Resolve(typeof(T));
         }
 
         public T Resolve<T>(string key)
         {
-            return (T)Resolve(key);
+            return (T) Resolve(key);
         }
 
-        public object[] GetServices(Type serviceType)
+        public IEnumerable<object> GetServices(Type serviceType)
         {
-            List<ComponentInfo> implementors = components.GetAllImplementorsFor(serviceType);
-
-            object[] services = new object[implementors.Count];
-
-            int i = 0;
-            implementors.ForEach(delegate(ComponentInfo ci)
-            {
-                services[i++] = resolveComponent(ci);
-            });
-
-            return services;
+        	return components.GetAllImplementorsFor(serviceType).Select(ci => resolveComponent(ci)).ToArray();
         }
 
-        public T[] GetServices<T>()
+		public IEnumerable<T> GetServices<T>()
         {
-            List<ComponentInfo> implementors = components.GetAllImplementorsFor(typeof(T));
-
-            T[] services = new T[implementors.Count];
-
-            int i = 0;
-            implementors.ForEach(delegate(ComponentInfo ci)
-            {
-                services[i++] = (T)resolveComponent(ci);
-            });
-
-            return services;
+			return components.GetAllImplementorsFor(typeof (T)).Select(ci => (T) resolveComponent(ci)).ToArray();
         }
 
-        public void RegisterHandler(Type targetType, IHandler handler)
+        public void RegisterActivator(Type targetType, IActivator activator)
         {
-            handler.Container = this;
-            handlers.Add(targetType, handler);
+            activators.Add(targetType, activator);
         }
 
-        public void RegisterHandler<T>(IHandler handler)
+        public void RegisterActivator<T>(IActivator activator)
         {
-            RegisterHandler(typeof(T), handler);
-        }
-
-        public object TryResolve(Type service)
-        {
-            try
-            {
-                return Resolve(service);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public T TryResolve<T>()
-        {
-            return (T)TryResolve(typeof(T));
+            RegisterActivator(typeof(T), activator);
         }
 
         public void Dispose()
         {
-            foreach(ComponentInfo item in components)
-            {
-                var disposable = item.Instance as IDisposable;
-                if (disposable == null) continue;
-                if (disposable == this) continue;
-                disposable.Dispose();
-            }
+        	var disposables = components
+        		.Select(component => component.Instance)
+        		.OfType<IDisposable>()
+        		.Where(disposable => disposable != this);
+        	
+			foreach (var disposable in disposables)
+        	{
+        		disposable.Dispose();
+        	}
         }
 
-        private string defaultKey(Type service)
+    	private static string defaultKey(Type service)
         {
             return service.FullName;
         }
 
         private ComponentInfo getComponentInfo(Type service)
         {
-            // TODO: consider implementing as Chain of Responsibility pattern
+            var result = components.FindServiceType(service) ?? components.FindClassType(service);
 
-            var result = components.FindServiceType(service);
-
-            if (result == null)
+        	if (result == null)
             {
-                result = components.FindClassType(service);
+            	var autoRegisterConventions = GetServices<IAutoRegisterConvention>();
+            	if (autoRegisterConventions.Any(c => c.AutoRegisterUnknownType(service, this)))
+            	{
+            		result = components.FindServiceType(service);
+            	}
             }
-            if (result == null)
-            {
-                result = TryAutoResolveConcreteType(service);
-            }
-            if (result == null)
-            {
-                result = TryAutoResolveAbstractType(service);
-            }
-            return result;
-        }
-
-        private ComponentInfo TryAutoResolveConcreteType(Type service)
-        {
-            if (!(service.IsInterface || service.IsAbstract))
-            {
-                AddComponent(defaultKey(service), service);
-                return components.FindServiceType(service);
-            }
-            return null;
-        }
-
-        private ComponentInfo TryAutoResolveAbstractType(Type service)
-        {
-            if (_autoRegister && (service.IsInterface || service.IsAbstract))
-            {
-                if (service.Name.IndexOf('I') == 0)
-                {
-                    var concreteName = service.Name.Remove(0, 1);
-                    var concreteServiceName = service.FullName.Replace(service.Name, concreteName);
-                    var concreteServiceType = service.Assembly.GetType(concreteServiceName);
-                    AddComponent(defaultKey(service), service, concreteServiceType);
-                    return components.FindServiceType(service);
-                }
-            }
-            return null;
+        	return result;
         }
 
         private ComponentInfo getComponentInfo(string key)
@@ -302,7 +223,7 @@ namespace CompactContainer
                         if (ci.Instance == null)
                         {
                             ci.IsResolvingDependencies = true;
-                            ci.Instance = handleCreateNew(ci.Classtype);
+                            ci.Instance = handleCreateNew(ci);
                             ci.IsResolvingDependencies = false;
                             singletonsInstanciatedCount++;
                         }
@@ -310,7 +231,7 @@ namespace CompactContainer
 
                     case (LifestyleType.Transient):
                         ci.IsResolvingDependencies = true;
-                        object result = handleCreateNew(ci.Classtype);
+                        var result = handleCreateNew(ci);
                         ci.IsResolvingDependencies = false;
                         return result;
                 }
@@ -319,19 +240,16 @@ namespace CompactContainer
             }
         }
 
-        private object handleCreateNew(Type classType)
+        private object handleCreateNew(ComponentInfo componentInfo)
         {
-            IHandler handler = defaultHandler;
+            var activator = DefaultActivator;
 
-            foreach (KeyValuePair<Type, IHandler> pair in handlers)
+			foreach (var pair in activators.Where(pair => pair.Key.IsAssignableFrom(componentInfo.Classtype)))
             {
-                if (pair.Key.IsAssignableFrom(classType))
-                {
-                    handler = pair.Value;
-                    break;
-                }
+            	activator = pair.Value;
+            	break;
             }
-            return handler.Create(classType);
+			return activator.Create(componentInfo);
         }
     }
 }

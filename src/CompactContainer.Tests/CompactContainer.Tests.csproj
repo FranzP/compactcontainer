@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompactContainerTests.cs" />
-    <Compile Include="ComponentListTests.cs" />
     <Compile Include="ContainerTestObjects.cs" />
   </ItemGroup>
   <ItemGroup>

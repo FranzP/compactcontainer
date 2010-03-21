@@ -37,21 +37,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractHandler.cs" />
-    <Compile Include="AttributedConstructorResolver.cs" />
-    <Compile Include="AttributedHandler.cs" />
+    <Compile Include="AutoRegisterConventions\AbstractTypeConvention.cs" />
+    <Compile Include="AutoRegisterConventions\ConcreteTypeConvention.cs" />
+    <Compile Include="ConstructorResolvers\AttributedConstructorResolver.cs" />
+    <Compile Include="Activators\AttributedActivator.cs" />
     <Compile Include="CompactContainer.cs" />
     <Compile Include="CompactContainerException.cs" />
     <Compile Include="ComponentInfo.cs" />
-    <Compile Include="ComponentList.cs" />
-    <Compile Include="ConstructionInfo.cs" />
-    <Compile Include="DefaultConstructorResolver.cs" />
-    <Compile Include="DefaultHandler.cs" />
+    <Compile Include="ConstructorResolvers\DefaultConstructorResolver.cs" />
+    <Compile Include="Activators\DefaultActivator.cs" />
+    <Compile Include="DependencyResolvers\ArrayDependencyResolver.cs" />
+    <Compile Include="DependencyResolvers\CompositeDependencyResolver.cs" />
+    <Compile Include="DependencyResolvers\DefaultDependencyResolver.cs" />
+    <Compile Include="EnumerableComponentInfoExtensions.cs" />
+    <Compile Include="IAutoRegisterConvention.cs" />
     <Compile Include="ICompactContainer.cs" />
     <Compile Include="IConstructorResolver.cs" />
-    <Compile Include="IContainerConfigurator.cs" />
-    <Compile Include="IHandler.cs" />
+    <Compile Include="IDependencyResolver.cs" />
+    <Compile Include="IActivator.cs" />
     <Compile Include="InjectAttribute.cs" />
+    <Compile Include="LifestyleType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

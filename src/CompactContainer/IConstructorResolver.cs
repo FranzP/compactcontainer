@@ -1,9 +1,9 @@
-using System;
+using System.Reflection;
 
 namespace CompactContainer
 {
 	public interface IConstructorResolver
 	{
-		ConstructionInfo GetConstructionInfo(Type classType);
+		ConstructorInfo SelectConstructor(ComponentInfo componentInfo);
 	}
 }
