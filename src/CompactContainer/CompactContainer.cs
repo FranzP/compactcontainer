@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using CompactContainer.Activators;
 using CompactContainer.DependencyResolvers;
+using CompactContainer.Registrations;
 
 namespace CompactContainer
 {
     public class CompactContainer : ICompactContainer
     {
-        private int singletonsInstanciatedCount;
-
     	private readonly List<ComponentInfo> components = new List<ComponentInfo>();
 		private readonly Dictionary<Type, IActivator> activators = new Dictionary<Type, IActivator>();
 
@@ -31,6 +30,22 @@ namespace CompactContainer
         public IEnumerable<ComponentInfo> Components
         {
             get { return components; }
+		}
+
+		public void Register(params IRegistration[] registrations)
+		{
+			foreach (var registration in registrations)
+			{
+				registration.Apply(this);
+			}
+		}
+
+		public void AddComponentInfo(ComponentInfo componentInfo)
+		{
+			if (HasComponent(componentInfo.Key))
+				throw new CompactContainerException("key already registered: " + componentInfo.Key);
+
+			components.Add(componentInfo);
 		}
 
 		#region Registration API - will change
@@ -76,13 +91,13 @@ namespace CompactContainer
             {
                 throw new CompactContainerException("key already registered: " + key);
             }
-            ComponentInfo ci = new ComponentInfo(key, serviceType, classType, lifestyle);
+            var ci = new ComponentInfo(key, serviceType, classType, lifestyle);
             components.Add(ci);
         }
 
         public void RemoveComponent(string key)
         {
-            ComponentInfo ci = getComponentInfo(key);
+            var ci = getComponentInfo(key);
             if (ci == null)
                 throw new CompactContainerException("component not registered: " + key);
 
@@ -100,10 +115,9 @@ namespace CompactContainer
             {
                 throw new CompactContainerException("key already registered");
             }
-            ComponentInfo ci = new ComponentInfo(key, serviceType, instance.GetType(), LifestyleType.Singleton);
+            var ci = new ComponentInfo(key, serviceType, instance.GetType(), LifestyleType.Singleton);
             ci.Instance = instance;
             components.Add(ci);
-            singletonsInstanciatedCount++;
 		}
 
 		#endregion
@@ -225,7 +239,6 @@ namespace CompactContainer
                             ci.IsResolvingDependencies = true;
                             ci.Instance = handleCreateNew(ci);
                             ci.IsResolvingDependencies = false;
-                            singletonsInstanciatedCount++;
                         }
                         return ci.Instance;
 

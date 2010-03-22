@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="CompactContainerTests.cs" />
     <Compile Include="ContainerTestObjects.cs" />
+    <Compile Include="RegistrationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CompactContainer\CompactContainer.csproj">

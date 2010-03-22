@@ -16,6 +16,11 @@ namespace CompactContainer
 			return list.FirstOrDefault(ci => ci.ServiceType.Equals(serviceType));
 		}
 
+		public static ComponentInfo FindForwardedType(this IEnumerable<ComponentInfo> list, Type forwardType)
+		{
+			return list.FirstOrDefault(ci => ci.ForwardTypes != null && ci.ForwardTypes.Any(t => t.Equals(forwardType)));
+		}
+
 		public static ComponentInfo FindClassType(this IEnumerable<ComponentInfo> list, Type classType)
 		{
 			return list.FirstOrDefault(ci => ci.Classtype.Equals(classType));

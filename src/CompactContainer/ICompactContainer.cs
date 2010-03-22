@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace CompactContainer
@@ -12,6 +11,7 @@ namespace CompactContainer
 
 		IEnumerable<ComponentInfo> Components { get; }
 
+		void AddComponentInfo(ComponentInfo componentInfo);
 		#region Registration api - will change
 		void AddComponent(string key, Type classType);
 		void AddComponent(string key, Type classType, LifestyleType lifestyle);
