@@ -21,7 +21,7 @@ namespace CompactContainer
     	public CompactContainer()
         {
             DefaultActivator = new DefaultActivator(this);
-    		DependencyResolver = new DefaultDependencyResolver(this);
+    		DependencyResolver = new CompositeDependencyResolver(this);
             DefaultLifestyle = LifestyleType.Singleton;
 
     		AddComponentInfo(new ComponentInfo("container", typeof (ICompactContainer), GetType(),

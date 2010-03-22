@@ -26,5 +26,17 @@ namespace CompactContainer.Tests
 
 			Assert.That(compb.CompA, Is.SameAs(specificCompA));
 		}
+
+		[Test]
+		public void Should_throw_meaninful_exception_when_parameter_type_is_wrong()
+		{
+			container.Register(
+				Component.For<IComponentB>().ImplementedBy<ComponentB>()
+					.With(Parameter.ForKey("compA").EqualsTo("x"))
+				);
+
+			var ex = Assert.Throws<CompactContainerException>(() => container.Resolve<IComponentB>());
+			Assert.That(ex.Message, Is.EqualTo("Cannot convert parameter override \"compA\" to type CompactContainer.Tests.IComponentA for component Key:CompactContainer.Tests.ComponentB - Services:IComponentB - Class:ComponentB"));
+		}
 	}
 }

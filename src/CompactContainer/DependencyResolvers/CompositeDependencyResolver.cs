@@ -12,6 +12,7 @@ namespace CompactContainer.DependencyResolvers
 		{
 			resolvers.Add(new DefaultDependencyResolver(container));
 			resolvers.Add(new ArrayDependencyResolver(container));
+			resolvers.Add(new ParameterDependencyResolver());
 		}
 
 		public bool CanResolve(string key, Type type, ComponentInfo componentContext)

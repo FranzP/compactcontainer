@@ -27,7 +27,7 @@ namespace CompactContainer.ConstructorResolvers
 
 				foreach (var parameterInfo in parameters)
 				{
-					if (!container.DependencyResolver.CanResolve(null, parameterInfo.ParameterType, componentInfo))
+					if (!container.DependencyResolver.CanResolve(parameterInfo.Name, parameterInfo.ParameterType, componentInfo))
 					{
 						missingComponents.Append(parameterInfo.ParameterType.Name + "; ");
 						proposeNewConstructor = false;
