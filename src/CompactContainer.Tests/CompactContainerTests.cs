@@ -23,7 +23,7 @@ namespace CompactContainer.Tests
             Assert.IsFalse(container.HasComponent("comp.a"));
 			Assert.IsFalse(container.HasComponent(typeof(IComponentA))); 
 
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>().Named("comp.a"));
 
 			Assert.IsTrue(container.HasComponent(typeof(IComponentA)));
 			Assert.IsTrue(container.HasComponent("comp.a"));
@@ -33,17 +33,17 @@ namespace CompactContainer.Tests
 		[ExpectedException(typeof(CompactContainerException))]
 		public void CannotAddDuplicatedComponent()
 		{
-			container.AddComponent("comp", typeof(ComponentA));
-			container.AddComponent("comp", typeof(ComponentB));
+			container.Register(Component.For<ComponentA>().Named("comp"),
+			                   Component.For<ComponentB>().Named("comp"));
 		}
 
 		[Test]
 		public void CanResolveSingletonComponent()
 		{
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>().Named("comp.a"));
 
-			IComponentA compA1 = (IComponentA)container.Resolve(typeof(IComponentA));
-			IComponentA compA2 = (IComponentA)container.Resolve("comp.a");
+			var compA1 = (IComponentA)container.Resolve(typeof(IComponentA));
+			var compA2 = (IComponentA)container.Resolve("comp.a");
 
 			Assert.IsNotNull(compA1);
 			Assert.AreSame(compA1, compA2);
@@ -52,10 +52,10 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanResolveSingletonComponentUsingGenerics()
 		{
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>().Named("comp.a"));
 
-			IComponentA compA1 = container.Resolve<IComponentA>();
-			IComponentA compA2 = container.Resolve<IComponentA>("comp.a");
+			var compA1 = container.Resolve<IComponentA>();
+			var compA2 = container.Resolve<IComponentA>("comp.a");
 
 			Assert.IsNotNull(compA1);
 			Assert.AreSame(compA1, compA2);
@@ -64,10 +64,10 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanResolveSingletonComponentWithConstructorInjection()
 		{
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
-			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>(),
+			                   Component.For<IComponentB>().ImplementedBy<ComponentB>());
 
-			IComponentB compB = (IComponentB)container.Resolve(typeof(IComponentB));
+			var compB = (IComponentB)container.Resolve(typeof(IComponentB));
 
 			Assert.AreSame(container.Resolve(typeof(IComponentA)), compB.CompA);
 		}
@@ -75,10 +75,10 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanResolveTransientComponent()
 		{
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA), LifestyleType.Transient);
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>().WithLifestyle(LifestyleType.Transient));
 
-			IComponentA compA1 = container.Resolve<IComponentA>();
-			IComponentA compA2 = container.Resolve<IComponentA>();
+			var compA1 = container.Resolve<IComponentA>();
+			var compA2 = container.Resolve<IComponentA>();
 
 			Assert.AreNotSame(compA1, compA2);
 		}
@@ -86,28 +86,28 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanRegisterAndResolveComponentWithoutService()
 		{
-			container.AddComponent("comp.a", typeof(ComponentA));
+			container.Register(Component.For<ComponentA>());
 
-			ComponentA compA1 = container.Resolve<ComponentA>();
-			ComponentA compA2 = container.Resolve<ComponentA>();
+			var compA1 = container.Resolve<ComponentA>();
+			var compA2 = container.Resolve<ComponentA>();
 			Assert.AreSame(compA2, compA1);
 		}
 
 		[Test]
 		public void CanRegisterAndResolveComponentWithMultipleConstructors()
 		{
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
-			container.AddComponent("comp.c1", typeof(IComponentC), typeof(ComponentC));
-			container.AddComponent("comp.c2", typeof(IComponentC), typeof(ComponentC));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>(),
+			                   Component.For<IComponentC>().ImplementedBy<ComponentC>().Named("comp.c1"),
+			                   Component.For<IComponentC>().ImplementedBy<ComponentC>().Named("comp.c2"));
 
-			IComponentC compC1 = container.Resolve<IComponentC>("comp.c1");
+			var compC1 = container.Resolve<IComponentC>("comp.c1");
 			Assert.AreEqual(1, compC1.ConstructorUsed);
 			Assert.AreSame(container.Resolve<IComponentA>(), compC1.CompA);
 			Assert.AreSame(null, compC1.CompB);
 
-			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
+			container.Register(Component.For<IComponentB>().ImplementedBy<ComponentB>());
 
-			IComponentC compC2 = container.Resolve<IComponentC>("comp.c2");
+			var compC2 = container.Resolve<IComponentC>("comp.c2");
 			Assert.AreEqual(2, compC2.ConstructorUsed);
 			Assert.AreSame(container.Resolve<IComponentA>(), compC2.CompA);
 			Assert.AreSame(container.Resolve<IComponentB>(), compC2.CompB);
@@ -119,18 +119,18 @@ namespace CompactContainer.Tests
 		public void CanRegisterAndResolveComponentWithMultipleConstructorsUsingCustomAttribute()
 		{
 			container.DefaultActivator = new AttributedActivator(container);
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
-			container.AddComponent("comp.d1", typeof(IComponentD), typeof(ComponentD));
-			container.AddComponent("comp.d2", typeof(IComponentD), typeof(ComponentD));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>(),
+			                   Component.For<IComponentD>().ImplementedBy<ComponentD>().Named("comp.d1"),
+			                   Component.For<IComponentD>().ImplementedBy<ComponentD>().Named("comp.d2"));
 
-			IComponentD compD1 = container.Resolve<IComponentD>("comp.d1");
+			var compD1 = container.Resolve<IComponentD>("comp.d1");
 			Assert.AreEqual(1, compD1.ConstructorUsed);
 			Assert.AreSame(container.Resolve<IComponentA>(), compD1.CompA);
 			Assert.AreSame(null, compD1.CompB);
 
-			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
+			container.Register(Component.For<IComponentB>().ImplementedBy<ComponentB>());
 
-			IComponentD compD2 = container.Resolve<IComponentD>("comp.d2");
+			var compD2 = container.Resolve<IComponentD>("comp.d2");
 			Assert.AreEqual(1, compD2.ConstructorUsed);
 			Assert.AreSame(container.Resolve<IComponentA>(), compD2.CompA);
 			Assert.AreSame(null, compD2.CompB);
@@ -143,14 +143,11 @@ namespace CompactContainer.Tests
 		{
 			IComponentA compA1 = new ComponentA();
 
-			container.AddComponentInstance("comp.a1", compA1);
-			Assert.AreSame(compA1, container.Resolve<ComponentA>());
-
-			container.AddComponentInstance("comp.a2", compA1);
-			Assert.AreSame(compA1, container.Resolve<IComponentA>("comp.a2"));
-
-			container.AddComponentInstance("comp.a3", typeof(IComponentA), compA1);
+			container.Register(Component.For<IComponentA>().Instance(compA1));
 			Assert.AreSame(compA1, container.Resolve<IComponentA>());
+
+			container.Register(Component.For<IComponentA>().Instance(compA1).Named("comp.a2"));
+			Assert.AreSame(compA1, container.Resolve<IComponentA>("comp.a2"));
 		}
 
 		[Test]
@@ -162,9 +159,9 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanGetAllComponentsThatImplementService()
 		{
-			container.AddComponent("comp.a1", typeof(IComponentA), typeof(ComponentA));
-			container.AddComponent("comp.a2", typeof(IComponentA), typeof(ComponentAA));
-			container.AddComponent("comp.b", typeof(IComponentB), typeof(ComponentB));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>(),
+			                   Component.For<IComponentA>().ImplementedBy<ComponentAA>(),
+			                   Component.For<IComponentB>().ImplementedBy<ComponentB>());
 
 			var compsA1 = container.GetServices(typeof(IComponentA));
 			Assert.AreEqual(2, compsA1.Count());
@@ -177,32 +174,22 @@ namespace CompactContainer.Tests
 		}
 
 		[Test]
-		[ExpectedException(typeof(CompactContainerException))]
 		public void DetectCircularReferences()
 		{
-			container.AddComponent("x", typeof(IDependentX), typeof(DependentX));
-			container.AddComponent("y", typeof(IDependentY), typeof(DependentY));
+			container.Register(Component.For<IDependentX>().ImplementedBy<DependentX>(),
+			                   Component.For<IDependentY>().ImplementedBy<DependentY>());
 
-			container.Resolve<IDependentY>();
-		}
-
-		[Test]
-		public void CanResolveToClassTypeIfNotSuchService()
-		{
-			container.AddComponent("comp.a", typeof(IComponentA), typeof(ComponentA));
-
-			ComponentA compa = container.Resolve<ComponentA>();
-
-			Assert.IsNotNull(compa);
+			var ex = Assert.Throws<CompactContainerException>(() => container.Resolve<IDependentY>());
+			Assert.That(ex.Message, Is.EqualTo("Circular reference: Key:CompactContainer.Tests.DependentY - Services:IDependentY - Class:DependentY"));
 		}
 
 		[Test]
 		public void CanResolveWithHandler()
 		{
 			container.RegisterActivator<IStartable>(new StartableActivator(container));
-			container.AddComponent("startable.service", typeof(IComponentU), typeof(StartableComponent));
+			container.Register(Component.For<IComponentU>().ImplementedBy<StartableComponent>());
 
-			IComponentU cu = container.Resolve<IComponentU>();
+			var cu = container.Resolve<IComponentU>();
 
 			Assert.AreEqual(1, cu.A);
 		}
@@ -211,26 +198,19 @@ namespace CompactContainer.Tests
 		public void ResolutionOfClassCanUseDefaultLifestyleTypeTransient()
 		{
 			container.DefaultLifestyle = LifestyleType.Transient;
-			container.AddComponent(typeof(ComponentA));
+			container.Register(Component.For<ComponentA>());
+			
 			var component1 = container.Resolve<ComponentA>();
 			var component2 = container.Resolve<ComponentA>();
 			Assert.AreNotSame(component1, component2);
 		}
 
-		[Test]
-		public void ResolutionOfClassCanUseDefaultLifestyleTypeSingleton()
-		{
-			container.DefaultLifestyle = LifestyleType.Singleton;
-			container.AddComponent(typeof(ComponentA));
-			var component1 = container.Resolve<ComponentA>();
-			var component2 = container.Resolve<ComponentA>();
-			Assert.AreSame(component1, component2);
-		}
 
 		[Test]
 		public void AutoregisterConcreteTypesWhenResolving()
 		{
-			container.AddComponent(typeof(IAutoRegisterConvention), typeof(AutoRegisterConventions.ConcreteTypeConvention));
+			container.Register(
+				Component.For<IAutoRegisterConvention>().ImplementedBy<AutoRegisterConventions.ConcreteTypeConvention>());
 			var a = container.Resolve<ComponentA>();
 			Assert.IsNotNull(a);
 		}
@@ -239,7 +219,8 @@ namespace CompactContainer.Tests
         public void AutoregisterInterfaceTypeUsingDefaultNamingConvention()
         {
             // new feature - auto register an interface type when a concrete component can be resolved with matching name
-			container.AddComponent(typeof(IAutoRegisterConvention), typeof(AutoRegisterConventions.AbstractTypeConvention));
+			container.Register(
+				Component.For<IAutoRegisterConvention>().ImplementedBy<AutoRegisterConventions.AbstractTypeConvention>());
 			var a = container.Resolve<IComponentA>();
             Assert.IsInstanceOfType(typeof(ComponentA), a);
         }
@@ -247,18 +228,18 @@ namespace CompactContainer.Tests
 		[Test]
 		public void CanRemoveRegisteredComponent()
 		{
-			container.AddComponent("a", typeof(IComponentA), typeof(ComponentA));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>().Named("a"));
 			Assert.IsInstanceOfType(typeof(ComponentA), container.Resolve<IComponentA>());
 
 			container.RemoveComponent("a");
-			container.AddComponent("a", typeof(IComponentA), typeof(ComponentAA));
+			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentAA>());
 			Assert.IsInstanceOfType(typeof(ComponentAA), container.Resolve<IComponentA>());
 		}
 
         [Test]
         public void DisposingContainerAlsoDisposedComponentsInContainer()
         {
-            container.AddComponent(typeof(DisposableComponent));
+			container.Register(Component.For<DisposableComponent>());
             var disposable = container.Resolve<DisposableComponent>();
 
             Assert.AreEqual(0, disposable.DisposedCalledCount);

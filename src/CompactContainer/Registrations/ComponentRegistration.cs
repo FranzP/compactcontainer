@@ -1,20 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace CompactContainer.Registrations
 {
 	public class ComponentRegistration<TServ> : IRegistration
 	{
-		protected Type serviceType;
+		protected IEnumerable<Type> ServiceTypes;
+
 		private Type implementationType;
 		private LifestyleType? lifestyle;
 		private string name;
-		private readonly List<Type> forwardTypes = new List<Type>();
+		private object instance;
 
 		public ComponentRegistration()
 		{
-			serviceType = typeof(TServ);
+			ServiceTypes = new[] {typeof (TServ)};
+		}
+
+		public ComponentRegistration(params Type[] serviceTypes)
+		{
+			ServiceTypes = serviceTypes;
 		}
 
 		public ComponentRegistration<TServ> Named(string name)
@@ -42,22 +49,9 @@ namespace CompactContainer.Registrations
 			return this;
 		}
 
-		public ComponentRegistration<TServ> Forward<TF1>()
+		public ComponentRegistration<TServ> Instance(TServ instance)
 		{
-			forwardTypes.Add(typeof(TF1));
-			return this;
-		}		
-		
-		public ComponentRegistration<TServ> Forward<TF1, TF2>()
-		{
-			forwardTypes.Add(typeof(TF1));
-			forwardTypes.Add(typeof(TF2));
-			return this;
-		}
-
-		public ComponentRegistration<TServ> Forward(params Type[] types)
-		{
-			forwardTypes.AddRange(types);
+			this.instance = instance;
 			return this;
 		}
 
@@ -65,11 +59,46 @@ namespace CompactContainer.Registrations
 		public void Apply(ICompactContainer container)
 		{
 			if (implementationType == null)
-				implementationType = serviceType;
+			{
+				if (instance != null)
+				{
+					implementationType = instance.GetType();
+				}
+				else
+				{
+					if (ServiceTypes.Count() != 1)
+					{
+						throw new CompactContainerException("Cannot infer implementation type when more than one service is specified: " +
+						                                    ServiceTypes.Select(t => t.Name).ToCommandSeparatedString());
+					}
+					implementationType = ServiceTypes.Single();
+				}
+			}
 
-			var ci = new ComponentInfo(name, serviceType, implementationType, lifestyle ?? container.DefaultLifestyle)
+			// name calculation
+			if (name == null)
+			{
+				if (implementationType != null)
+				{
+					name = implementationType.FullName;
+				}
+				else if (instance != null)
+				{
+					name = instance.GetType().FullName;
+				}
+				else if (ServiceTypes.Count() > 0)
+				{
+					name = ServiceTypes.First().FullName;
+				}
+				else
+				{
+					throw new CompactContainerException("Cannot infer name for component");
+				}
+			}
+
+			var ci = new ComponentInfo(name, ServiceTypes, implementationType, lifestyle ?? container.DefaultLifestyle)
 			         	{
-			         		ForwardTypes = forwardTypes
+			         		Instance = instance,
 			         	};
 			container.AddComponentInfo(ci);
 		}
@@ -77,9 +106,9 @@ namespace CompactContainer.Registrations
 
 	public class ComponentRegistration : ComponentRegistration<object>
 	{
-		public ComponentRegistration(Type serviceType)
+		public ComponentRegistration(params Type[] serviceTypes)
 		{
-			this.serviceType = serviceType;
+			ServiceTypes = serviceTypes;
 		}
 	}
 }

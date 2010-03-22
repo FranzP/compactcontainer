@@ -8,7 +8,7 @@ namespace CompactContainer.AutoRegisterConventions
 		{
 			if (!(type.IsInterface || type.IsAbstract))
 			{
-				container.AddComponent(type.FullName, type);
+				container.AddComponentInfo(new ComponentInfo(type.FullName, type, type, container.DefaultLifestyle));
 				return true;
 			}
 			return false;

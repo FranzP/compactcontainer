@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CompactContainer
 {
@@ -8,22 +9,28 @@ namespace CompactContainer
 		private readonly IDictionary<string, object> parameters = new Dictionary<string, object>();
 
 		public ComponentInfo(string key, Type serviceType, Type classType, LifestyleType lifestyle)
+			: this(key, new[] {serviceType}, classType, lifestyle)
 		{
+		}
+
+		public ComponentInfo(string key, IEnumerable<Type> serviceType, Type classType, LifestyleType lifestyle)
+		{
+			if (key == null)
+				throw new ArgumentNullException("key");
+
 			Key = key;
-			ServiceType = serviceType;
+			ServiceTypes = serviceType;
 			Classtype = classType;
 			Lifestyle = lifestyle;
 		}
 
 		public string Key { get; private set; }
 
-		public Type ServiceType { get; private set; }
+		public IEnumerable<Type> ServiceTypes { get; private set; }
 
 		public Type Classtype { get; private set; }
 
 		public LifestyleType Lifestyle { get; private set; }
-
-		public IEnumerable<Type> ForwardTypes { get; set; }
 
 		public IDictionary<string, object> Parameters
 		{
@@ -36,7 +43,10 @@ namespace CompactContainer
 
 		public override string ToString()
 		{
-			return string.Format("Key:{0} - Service:{1} - Class:{2}", Key, ServiceType.Name, Classtype.Name);
+			return string.Format("Key:{0} - Services:{1} - Class:{2}",
+			                     Key,
+			                     ServiceTypes.Select(t => t.Name).ToCommandSeparatedString(),
+			                     Classtype.Name);
 		}
 	}
 }

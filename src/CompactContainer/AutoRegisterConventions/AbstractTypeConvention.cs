@@ -13,7 +13,7 @@ namespace CompactContainer.AutoRegisterConventions
 					var concreteName = type.Name.Remove(0, 1);
 					var concreteFullName = type.FullName.Replace(type.Name, concreteName);
 					var concreteType = type.Assembly.GetType(concreteFullName);
-					container.AddComponent(type.FullName, type, concreteType);
+					container.AddComponentInfo(new ComponentInfo(type.FullName, type, concreteType, container.DefaultLifestyle));
 					return true;
 				}
 			}

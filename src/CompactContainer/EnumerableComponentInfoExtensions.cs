@@ -8,22 +8,12 @@ namespace CompactContainer
 	{
 		public static IEnumerable<ComponentInfo> GetAllImplementorsFor(this IEnumerable<ComponentInfo> list, Type serviceType)
 		{
-			return list.Where(ci => ci.ServiceType.Equals(serviceType)).ToList();
+			return list.Where(ci => ci.ServiceTypes.Any(t => t.Equals(serviceType))).ToList();
 		}
 
 		public static ComponentInfo FindServiceType(this IEnumerable<ComponentInfo> list, Type serviceType)
 		{
-			return list.FirstOrDefault(ci => ci.ServiceType.Equals(serviceType));
-		}
-
-		public static ComponentInfo FindForwardedType(this IEnumerable<ComponentInfo> list, Type forwardType)
-		{
-			return list.FirstOrDefault(ci => ci.ForwardTypes != null && ci.ForwardTypes.Any(t => t.Equals(forwardType)));
-		}
-
-		public static ComponentInfo FindClassType(this IEnumerable<ComponentInfo> list, Type classType)
-		{
-			return list.FirstOrDefault(ci => ci.Classtype.Equals(classType));
+			return list.FirstOrDefault(ci => ci.ServiceTypes.Any(t => t.Equals(serviceType)));
 		}
 
 		public static ComponentInfo FindKey(this IEnumerable<ComponentInfo> list, string key)

@@ -24,7 +24,11 @@ namespace CompactContainer
     		DependencyResolver = new DefaultDependencyResolver(this);
             DefaultLifestyle = LifestyleType.Singleton;
 
-            AddComponentInstance("container", typeof(ICompactContainer), this);
+    		AddComponentInfo(new ComponentInfo("container", typeof (ICompactContainer), GetType(),
+    		                                   LifestyleType.Singleton)
+    		                 	{
+    		                 		Instance = this
+    		                 	});
         }
 
         public IEnumerable<ComponentInfo> Components
@@ -48,53 +52,6 @@ namespace CompactContainer
 			components.Add(componentInfo);
 		}
 
-		#region Registration API - will change
-
-		public void AddComponent(Type classType)
-        {
-            AddComponent(defaultKey(classType), classType, classType, DefaultLifestyle);
-        }
-
-        public void AddComponent(Type classType, LifestyleType lifestyle)
-        {
-            AddComponent(defaultKey(classType), classType, classType, lifestyle);
-        }
-
-        public void AddComponent(Type serviceType, Type classType)
-        {
-            AddComponent(defaultKey(classType), serviceType, classType, DefaultLifestyle);
-        }
-
-        public void AddComponent(Type serviceType, Type classType, LifestyleType lifestyle)
-        {
-            AddComponent(defaultKey(classType), serviceType, classType, lifestyle);
-        }
-
-        public void AddComponent(string key, Type classType)
-        {
-            AddComponent(key, classType, classType, DefaultLifestyle);
-        }
-
-        public void AddComponent(string key, Type classType, LifestyleType lifestyle)
-        {
-            AddComponent(key, classType, classType, lifestyle);
-        }
-
-        public void AddComponent(string key, Type serviceType, Type classType)
-        {
-            AddComponent(key, serviceType, classType, DefaultLifestyle);
-        }
-
-        public void AddComponent(string key, Type serviceType, Type classType, LifestyleType lifestyle)
-        {
-            if (HasComponent(key))
-            {
-                throw new CompactContainerException("key already registered: " + key);
-            }
-            var ci = new ComponentInfo(key, serviceType, classType, lifestyle);
-            components.Add(ci);
-        }
-
         public void RemoveComponent(string key)
         {
             var ci = getComponentInfo(key);
@@ -104,24 +61,6 @@ namespace CompactContainer
             components.Remove(ci);
         }
 
-        public void AddComponentInstance(string key, object instance)
-        {
-            AddComponentInstance(key, instance.GetType(), instance);
-        }
-
-        public void AddComponentInstance(string key, Type serviceType, object instance)
-        {
-            if (HasComponent(key))
-            {
-                throw new CompactContainerException("key already registered");
-            }
-            var ci = new ComponentInfo(key, serviceType, instance.GetType(), LifestyleType.Singleton);
-            ci.Instance = instance;
-            components.Add(ci);
-		}
-
-		#endregion
-
 		public bool HasComponent(Type service)
         {
             var find = getComponentInfo(service);
@@ -130,6 +69,9 @@ namespace CompactContainer
 
         public bool HasComponent(string key)
         {
+			if (key == null)
+				throw new ArgumentNullException("key");
+
             var find = getComponentInfo(key);
             return (find != null);
         }
@@ -139,7 +81,7 @@ namespace CompactContainer
             var ci = getComponentInfo(service);
             if (ci == null)
             {
-                throw new CompactContainerException(service.Name + " not registered");
+                throw new CompactContainerException("Component with service type " + service.Name + " not registered in the container");
             }
             return resolveComponent(ci);
         }
@@ -147,6 +89,10 @@ namespace CompactContainer
         public object Resolve(string key)
         {
             var ci = getComponentInfo(key);
+			if (ci == null)
+			{
+				throw new CompactContainerException("Component with key \"" + key + "\" not registered in the container");
+			}
             return resolveComponent(ci);
         }
 
@@ -193,14 +139,9 @@ namespace CompactContainer
         	}
         }
 
-    	private static string defaultKey(Type service)
-        {
-            return service.FullName;
-        }
-
         private ComponentInfo getComponentInfo(Type service)
         {
-            var result = components.FindServiceType(service) ?? components.FindClassType(service);
+            var result = components.FindServiceType(service);
 
         	if (result == null)
             {
@@ -222,13 +163,9 @@ namespace CompactContainer
         {
             lock (ci)
             {
-                if (!HasComponent(ci.ServiceType))
-                {
-                    throw new CompactContainerException("Component not registered " + ci.ServiceType.Name);
-                }
                 if (ci.IsResolvingDependencies)
                 {
-                    throw new CompactContainerException("Circular reference: " + ci.ServiceType.Name);
+                    throw new CompactContainerException("Circular reference: " + ci);
                 }
 
                 switch (ci.Lifestyle)
