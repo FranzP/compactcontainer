@@ -1,4 +1,3 @@
-using CompactContainer.Registrations;
 using NUnit.Framework;
 
 namespace CompactContainer.Tests
@@ -63,7 +62,7 @@ namespace CompactContainer.Tests
 		}
 
 		[Test]
-		public void Can_register_component_with_forward_type()
+		public void Can_register_component_with_multiple_service_types()
 		{
 			container.Register(
 				Component.For<ComponentA, IComponentA>().ImplementedBy<ComponentA>()
@@ -79,6 +78,29 @@ namespace CompactContainer.Tests
 		public void Cannot_register_component_with_several_services_and_no_explicit_implementation()
 		{
 			Assert.Throws<CompactContainerException>(() => container.Register(Component.For<ComponentA, IComponentA>()));
+		}
+
+		[Test]
+		public void Can_specify_component_parameters()
+		{
+			container.Register(
+				Component.For<IComponentA>().ImplementedBy<ComponentA>()
+					.With(Parameter.ForKey("p1").EqualsTo("v1"),
+					      Parameter.ForKey("p2").EqualsTo(2)));
+
+			var ci = container.Components.FindServiceType(typeof(IComponentA));
+			Assert.That(ci.Parameters["p1"], Is.EqualTo("v1"));
+			Assert.That(ci.Parameters["p2"], Is.EqualTo(2));
+		}
+
+		[Test]
+		public void Can_specify_concrete_instance_during_singleton_registration()
+		{
+			var a = new ComponentA();
+			container.Register(Component.For<IComponentA>().Instance(a));
+
+			var ci = container.Components.FindServiceType(typeof(IComponentA));
+			Assert.That(ci.Instance, Is.SameAs(a));
 		}
 	}
 }

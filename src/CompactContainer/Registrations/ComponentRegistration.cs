@@ -13,6 +13,7 @@ namespace CompactContainer.Registrations
 		private LifestyleType? lifestyle;
 		private string name;
 		private object instance;
+		private IComponentRegistrationPart[] registrationParts;
 
 		public ComponentRegistration()
 		{
@@ -55,7 +56,13 @@ namespace CompactContainer.Registrations
 			return this;
 		}
 
-		[EditorBrowsable(EditorBrowsableState.Advanced)]
+		public ComponentRegistration<TServ> With(params IComponentRegistrationPart[] registrationParts)
+		{
+			this.registrationParts = registrationParts;
+			return this;
+		}
+
+		[EditorBrowsable(EditorBrowsableState.Never)]
 		public void Apply(ICompactContainer container)
 		{
 			if (implementationType == null)
@@ -100,6 +107,15 @@ namespace CompactContainer.Registrations
 			         	{
 			         		Instance = instance,
 			         	};
+
+			if (registrationParts != null)
+			{
+				foreach (var part in registrationParts)
+				{
+					part.ApplyTo(ci);
+				}
+			}
+
 			container.AddComponentInfo(ci);
 		}
 	}

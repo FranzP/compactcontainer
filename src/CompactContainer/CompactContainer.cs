@@ -47,7 +47,7 @@ namespace CompactContainer
 		public void AddComponentInfo(ComponentInfo componentInfo)
 		{
 			if (HasComponent(componentInfo.Key))
-				throw new CompactContainerException("key already registered: " + componentInfo.Key);
+				throw new CompactContainerException("A component with the same key is already registered: \"" + componentInfo.Key + "\"");
 
 			components.Add(componentInfo);
 		}
@@ -55,8 +55,8 @@ namespace CompactContainer
         public void RemoveComponent(string key)
         {
             var ci = getComponentInfo(key);
-            if (ci == null)
-                throw new CompactContainerException("component not registered: " + key);
+			if (ci == null)
+				throw new CompactContainerException("There is not any component registered with the given key: \"" + key + "\"");
 
             components.Remove(ci);
         }

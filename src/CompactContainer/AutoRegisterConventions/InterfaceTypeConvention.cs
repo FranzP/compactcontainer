@@ -2,7 +2,7 @@
 
 namespace CompactContainer.AutoRegisterConventions
 {
-	public class AbstractTypeConvention : IAutoRegisterConvention
+	public class InterfaceTypeConvention : IAutoRegisterConvention
 	{
 		public bool AutoRegisterUnknownType(Type type, ICompactContainer container)
 		{

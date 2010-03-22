@@ -44,6 +44,7 @@ namespace CompactContainer.Tests
 			get { return constructorUsed; }
 		}
 
+		[Inject]
 		public ComponentC(IComponentA compA)
 		{
 			this.compA = compA;
@@ -56,49 +57,6 @@ namespace CompactContainer.Tests
 			this.compB = compB;
 			constructorUsed = 2;
 		}
-	}
-
-	public class ComponentD : IComponentD
-	{
-		private readonly IComponentA compA;
-		private readonly IComponentB compB;
-		private readonly int constructorUsed = 0;
-
-		public IComponentA CompA
-		{
-			get { return compA; }
-		}
-
-		public IComponentB CompB
-		{
-			get { return compB; }
-		}
-
-		public int ConstructorUsed
-		{
-			get { return constructorUsed; }
-		}
-
-		[Inject]
-		public ComponentD(IComponentA compA)
-		{
-			this.compA = compA;
-			constructorUsed = 1;
-		}
-
-		public ComponentD(IComponentA compA, IComponentB compB)
-		{
-			this.compA = compA;
-			this.compB = compB;
-			constructorUsed = 2;
-		}
-	}
-
-	public interface IComponentD
-	{
-		IComponentA CompA { get; }
-		IComponentB CompB { get; }
-		int ConstructorUsed { get; }
 	}
 
 	public interface IComponentC
