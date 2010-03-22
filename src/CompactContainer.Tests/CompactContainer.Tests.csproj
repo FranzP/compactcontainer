@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="CompactContainerTests.cs" />
     <Compile Include="ContainerTestObjects.cs" />
+    <Compile Include="ParametersOverrideTests.cs" />
+    <Compile Include="PropertyInjectionTests.cs" />
     <Compile Include="RegistrationTests.cs" />
   </ItemGroup>
   <ItemGroup>

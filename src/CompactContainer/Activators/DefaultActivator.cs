@@ -21,6 +21,8 @@ namespace CompactContainer.Activators
 
 		public object Create(ComponentInfo componentInfo)
 		{
+			// ctor injection - required dependencies
+
 			var ctor = constructorResolver.SelectConstructor(componentInfo);
 
 			if (ctor == null)
@@ -28,13 +30,21 @@ namespace CompactContainer.Activators
 
 			var parameters = ctor.GetParameters();
 			var parameterValues = parameters
-				.Select(parameter => container.DependencyResolver.Resolve(null, parameter.ParameterType, componentInfo))
+				.Select(parameter => container.DependencyResolver.Resolve(parameter.Name, parameter.ParameterType, componentInfo))
 				.ToArray();
 
 			var result = ctor.Invoke(parameterValues);
 
-			// here we can do property injection
+			// property injection - optional dependencies
 
+			var properties = result.GetType().GetProperties().Where(p => p.CanWrite && p.GetSetMethod() != null);
+			foreach (var prop in properties)
+			{
+				if (container.DependencyResolver.CanResolve(prop.Name, prop.PropertyType, componentInfo))
+				{
+					prop.SetValue(result, container.DependencyResolver.Resolve(prop.Name, prop.PropertyType, componentInfo), null);
+				}
+			}
 			return result;
 		}
 	}
