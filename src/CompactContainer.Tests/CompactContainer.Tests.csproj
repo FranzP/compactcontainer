@@ -41,11 +41,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AllTypesRegistrationTests.cs" />
     <Compile Include="CompactContainerTests.cs" />
     <Compile Include="ContainerTestObjects.cs" />
     <Compile Include="ParametersOverrideTests.cs" />
     <Compile Include="PropertyInjectionTests.cs" />
-    <Compile Include="RegistrationTests.cs" />
+    <Compile Include="ComponentRegistrationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CompactContainer\CompactContainer.csproj">

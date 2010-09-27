@@ -1,5 +1,4 @@
-﻿using System;
-using CompactContainer.Registrations;
+﻿using CompactContainer.Registrations;
 
 namespace CompactContainer
 {

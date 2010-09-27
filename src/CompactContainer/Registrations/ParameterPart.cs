@@ -24,6 +24,7 @@ namespace CompactContainer.Registrations
 			return base.Equals(obj);
 		}
 
+		[EditorBrowsable(EditorBrowsableState.Never)]
 		public void ApplyTo(ComponentInfo componentInfo)
 		{
 			componentInfo.Parameters.Add(key, value);
