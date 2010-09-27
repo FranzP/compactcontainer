@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using SharpTestsEx;
 
 namespace CompactContainer.Tests
 {
@@ -24,7 +25,7 @@ namespace CompactContainer.Tests
 
 			var compb = container.Resolve<IComponentB>();
 
-			Assert.That(compb.CompA, Is.SameAs(specificCompA));
+			compb.CompA.Should().Be.SameInstanceAs(specificCompA);
 		}
 
 		[Test]
@@ -36,7 +37,7 @@ namespace CompactContainer.Tests
 				);
 
 			var ex = Assert.Throws<CompactContainerException>(() => container.Resolve<IComponentB>());
-			Assert.That(ex.Message, Is.EqualTo("Cannot convert parameter override \"compA\" to type CompactContainer.Tests.IComponentA for component Key:CompactContainer.Tests.ComponentB - Services:IComponentB - Class:ComponentB"));
+			ex.Message.Should().Be.EqualTo("Cannot convert parameter override \"compA\" to type CompactContainer.Tests.IComponentA for component Key:CompactContainer.Tests.ComponentB - Services:IComponentB - Class:ComponentB");
 		}
 	}
 }

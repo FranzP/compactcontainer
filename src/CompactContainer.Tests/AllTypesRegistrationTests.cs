@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using SharpTestsEx;
 
 namespace CompactContainer.Tests
 {
@@ -24,7 +25,7 @@ namespace CompactContainer.Tests
 				);
 
 			var firstComponentInfo = container.Components.FindServiceType(typeof (IView));
-			Assert.That(firstComponentInfo.Classtype, Is.EqualTo(typeof(FirstView)));
+			firstComponentInfo.Classtype.Should().Be.EqualTo(typeof(FirstView));
 		}
 
 		public interface IView { }

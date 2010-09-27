@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using SharpTestsEx;
 
 namespace CompactContainer.Tests
 {
@@ -25,8 +26,8 @@ namespace CompactContainer.Tests
 		{
 			var e = container.Resolve<ComponentE>();
 
-			Assert.That(e.ComponentA, Is.Not.Null);
-			Assert.That(e.ComponentB, Is.Not.Null);
+			e.ComponentA.Should().Not.Be.Null();
+			e.ComponentB.Should().Not.Be.Null();
 		}
 
 		[Test]
@@ -34,7 +35,7 @@ namespace CompactContainer.Tests
 		{
 			var e = container.Resolve<ComponentE>();
 
-			Assert.That(e.ComponentC, Is.Null);
+			e.ComponentC.Should().Be.Null();
 		}
 
 		[Test]
@@ -42,7 +43,7 @@ namespace CompactContainer.Tests
 		{
 			var e = container.Resolve<ComponentE>();
 
-			Assert.That(e.ComponentD, Is.Null);
+			e.ComponentD.Should().Be.Null();
 		}
 
 		public class ComponentE

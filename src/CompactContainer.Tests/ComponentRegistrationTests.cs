@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using SharpTestsEx;
 
 namespace CompactContainer.Tests
 {
@@ -21,9 +22,9 @@ namespace CompactContainer.Tests
 				);
 
 			var ci = container.Components.FindServiceType(typeof(IComponentA));
-			Assert.That(ci, Is.Not.Null);
-			Assert.That(ci.ServiceTypes, Has.Member(typeof(IComponentA)));
-			Assert.That(ci.Classtype, Is.EqualTo(typeof(ComponentA)));
+			ci.Should().Not.Be.Null();
+			ci.ServiceTypes.Should().Contain(typeof(IComponentA));
+			ci.Classtype.Should().Be.EqualTo(typeof(ComponentA));
 		}
 
 		[Test]
@@ -44,8 +45,8 @@ namespace CompactContainer.Tests
 				);
 
 			var ci = container.Components.FindServiceType(typeof(ComponentA));
-			Assert.That(ci, Is.Not.Null);
-			Assert.That(ci.Classtype, Is.EqualTo(typeof(ComponentA)));
+			ci.Should().Not.Be.Null();
+			ci.Classtype.Should().Be.EqualTo(typeof(ComponentA));
 		}
 
 		[Test]
@@ -56,9 +57,9 @@ namespace CompactContainer.Tests
 				);
 
 			var ci = container.Components.FindKey("c");
-			Assert.That(ci, Is.Not.Null);
-			Assert.That(ci.ServiceTypes, Has.Member(typeof(IComponentA)));
-			Assert.That(ci.Classtype, Is.EqualTo(typeof(ComponentA)));
+			ci.Should().Not.Be.Null();
+			ci.ServiceTypes.Should().Contain(typeof(IComponentA));
+			ci.Classtype.Should().Be.EqualTo(typeof(ComponentA));
 		}
 
 		[Test]
@@ -69,9 +70,9 @@ namespace CompactContainer.Tests
 				);
 
 			var ci = container.Components.FindServiceType(typeof(ComponentA));
-			Assert.That(ci, Is.Not.Null);
-			Assert.That(ci.ServiceTypes, Has.Member(typeof(IComponentA)));
-			Assert.That(ci.Classtype, Is.EqualTo(typeof(ComponentA)));
+			ci.Should().Not.Be.Null();
+			ci.ServiceTypes.Should().Contain(typeof(IComponentA));
+			ci.Classtype.Should().Be.EqualTo(typeof(ComponentA));
 		}
 
 		[Test]
@@ -89,8 +90,8 @@ namespace CompactContainer.Tests
 					      Parameter.ForKey("p2").EqualsTo(2)));
 
 			var ci = container.Components.FindServiceType(typeof(IComponentA));
-			Assert.That(ci.Parameters["p1"], Is.EqualTo("v1"));
-			Assert.That(ci.Parameters["p2"], Is.EqualTo(2));
+			ci.Parameters["p1"].Should().Be.EqualTo("v1");
+			ci.Parameters["p2"].Should().Be.EqualTo(2);
 		}
 
 		[Test]
@@ -100,7 +101,7 @@ namespace CompactContainer.Tests
 			container.Register(Component.For<IComponentA>().Instance(a));
 
 			var ci = container.Components.FindServiceType(typeof(IComponentA));
-			Assert.That(ci.Instance, Is.SameAs(a));
+			ci.Instance.Should().Be.SameInstanceAs(a);
 		}
 	}
 }
