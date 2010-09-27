@@ -5,7 +5,7 @@ namespace CompactContainer
 {
 	public static class StringExtensions
 	{
-		public static string ToCommandSeparatedString(this IEnumerable<string> strings)
+		public static string ToCommaSeparatedString(this IEnumerable<string> strings)
 		{
 			return strings.Aggregate((a, b) => a + ", " + b);
 		}

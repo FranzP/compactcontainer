@@ -45,7 +45,7 @@ namespace CompactContainer
 		{
 			return string.Format("Key:{0} - Services:{1} - Class:{2}",
 			                     Key,
-			                     ServiceTypes.Select(t => t.Name).ToCommandSeparatedString(),
+			                     ServiceTypes.Select(t => t.Name).ToCommaSeparatedString(),
 			                     Classtype.Name);
 		}
 	}

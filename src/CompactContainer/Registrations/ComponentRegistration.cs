@@ -76,7 +76,7 @@ namespace CompactContainer.Registrations
 					if (ServiceTypes.Count() != 1)
 					{
 						throw new CompactContainerException("Cannot infer implementation type when more than one service is specified: " +
-						                                    ServiceTypes.Select(t => t.Name).ToCommandSeparatedString());
+						                                    ServiceTypes.Select(t => t.Name).ToCommaSeparatedString());
 					}
 					implementationType = ServiceTypes.Single();
 				}
