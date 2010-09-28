@@ -40,6 +40,14 @@ namespace CompactContainer
 			}
 		}
 
+		public void Install(params IComponentsInstaller[] installers)
+		{
+			foreach (var installer in installers)
+			{
+				installer.Install(this);
+			}
+		}
+
 		public void AddComponentInfo(ComponentInfo componentInfo)
 		{
 			if (HasComponent(componentInfo.Key))

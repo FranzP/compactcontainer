@@ -11,6 +11,8 @@ namespace CompactContainer
 
 		IEnumerable<ComponentInfo> Components { get; }
 
+		void Install(params IComponentsInstaller[] installers);
+
 		void AddComponentInfo(ComponentInfo componentInfo);
 		void RemoveComponent(string key);
 

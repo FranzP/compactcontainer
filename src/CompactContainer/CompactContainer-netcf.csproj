@@ -68,6 +68,7 @@
     <Compile Include="IAutoRegisterConvention.cs" />
     <Compile Include="ICompactContainer.cs" />
     <Compile Include="IComponentSelector.cs" />
+    <Compile Include="IComponentsInstaller.cs" />
     <Compile Include="IConstructorResolver.cs" />
     <Compile Include="IDependencyResolver.cs" />
     <Compile Include="InjectAttribute.cs" />
