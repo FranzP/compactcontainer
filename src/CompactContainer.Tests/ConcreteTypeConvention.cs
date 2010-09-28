@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace CompactContainer.AutoRegisterConventions
+namespace CompactContainer.Tests
 {
 	public class ConcreteTypeConvention : IAutoRegisterConvention
 	{
-		public bool AutoRegisterUnknownType(Type type, ICompactContainer container)
+		public bool TryRegisterUnknownType(Type type, ICompactContainer container)
 		{
 			if (!(type.IsInterface || type.IsAbstract))
 			{

@@ -201,20 +201,10 @@ namespace CompactContainer.Tests
 		[Test]
 		public void Should_auto_register_concrete_type_when_convention_is_registered()
 		{
-			container.Register(
-				Component.For<IAutoRegisterConvention>().ImplementedBy<AutoRegisterConventions.ConcreteTypeConvention>());
+			container.RegisterAutoRegisterConvention(new ConcreteTypeConvention());
 			var a = container.Resolve<ComponentA>();
-			Assert.IsNotNull(a);
+			a.Should().Not.Be.Null();
 		}
-
-        [Test]
-		public void Should_auto_register_interface_type_when_convention_is_registered()
-        {
-			container.Register(
-				Component.For<IAutoRegisterConvention>().ImplementedBy<AutoRegisterConventions.InterfaceTypeConvention>());
-			
-			container.Resolve<IComponentA>().Should().Be.OfType<ComponentA>();
-        }
 
 		[Test]
 		public void Can_remove_registered_component_by_key()
@@ -229,8 +219,8 @@ namespace CompactContainer.Tests
 		[Test]
 		public void ThrowsWhenTryingToRemoveNotExistentComponent()
 		{
-			var ex = Assert.Throws<CompactContainerException>(() => container.RemoveComponent("a"));
-			ex.Message.Should().Be.EqualTo("There is not any component registered with the given key: \"a\"");
+			new Action(() => container.RemoveComponent("a")).Should().Throw<CompactContainerException>()
+				.And.Exception.Message.Should().Be.EqualTo("There is not any component registered with the given key: \"a\"");
 		}
 
         [Test]

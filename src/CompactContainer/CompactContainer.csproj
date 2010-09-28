@@ -39,8 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoRegisterConventions\InterfaceTypeConvention.cs" />
-    <Compile Include="AutoRegisterConventions\ConcreteTypeConvention.cs" />
     <Compile Include="ConstructorResolvers\AttributedConstructorResolver.cs" />
     <Compile Include="Activators\AttributedActivator.cs" />
     <Compile Include="CompactContainer.cs" />
@@ -55,6 +53,7 @@
     <Compile Include="EnumerableComponentInfoExtensions.cs" />
     <Compile Include="IAutoRegisterConvention.cs" />
     <Compile Include="ICompactContainer.cs" />
+    <Compile Include="IComponentSelector.cs" />
     <Compile Include="IConstructorResolver.cs" />
     <Compile Include="IDependencyResolver.cs" />
     <Compile Include="IActivator.cs" />

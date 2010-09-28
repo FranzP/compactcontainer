@@ -11,6 +11,8 @@ namespace CompactContainer
     {
     	private readonly List<ComponentInfo> components = new List<ComponentInfo>();
 		private readonly Dictionary<Type, IActivator> activators = new Dictionary<Type, IActivator>();
+		private readonly IList<IComponentSelector> componentSelectors = new List<IComponentSelector>();
+		private readonly IList<IAutoRegisterConvention> autoRegisterConventions = new List<IAutoRegisterConvention>();
 
     	public IActivator DefaultActivator { get; set; }
 
@@ -110,17 +112,27 @@ namespace CompactContainer
 			return components.GetAllImplementorsFor(typeof (T)).Select(ci => (T) resolveComponent(ci)).ToArray();
         }
 
-        public void RegisterActivator(Type targetType, IActivator activator)
+    	public void RegisterActivator(Type targetType, IActivator activator)
         {
             activators.Add(targetType, activator);
         }
 
-        public void RegisterActivator<T>(IActivator activator)
+    	public void RegisterActivator<T>(IActivator activator)
         {
             RegisterActivator(typeof(T), activator);
         }
 
-        public void Dispose()
+    	public void RegisterComponentSelector(IComponentSelector componentSelector)
+    	{
+    		componentSelectors.Add(componentSelector);
+    	}
+
+    	public void RegisterAutoRegisterConvention(IAutoRegisterConvention autoRegisterConvention)
+    	{
+    		autoRegisterConventions.Add(autoRegisterConvention);
+    	}
+
+    	public void Dispose()
         {
         	var disposables = components
         		.Select(component => component.Instance)
@@ -133,27 +145,41 @@ namespace CompactContainer
         	}
         }
 
-        private ComponentInfo getComponentInfo(Type service)
+    	private ComponentInfo getComponentInfo(Type service)
         {
-            var result = components.FindServiceType(service);
+    		ComponentInfo result = null;
 
-        	if (result == null)
+    		var availableComponents = components.GetAllImplementorsFor(service);
+
+			if (availableComponents.Count() == 1)
+			{
+				result = availableComponents.Single();
+			}
+			else if (availableComponents.Count() > 1)
+			{
+				var componentSelector = componentSelectors.FirstOrDefault(cs => cs.HasOpinionAbout(service));
+				if (componentSelector != null)
+					result = componentSelector.SelectComponent(service, availableComponents);
+			}
+			else
             {
-            	var autoRegisterConventions = GetServices<IAutoRegisterConvention>();
-            	if (autoRegisterConventions.Any(c => c.AutoRegisterUnknownType(service, this)))
+				// no matching component registered... try IAutoRegisterConventions
+
+            	if (autoRegisterConventions.Any(c => c.TryRegisterUnknownType(service, this)))
             	{
             		result = components.FindServiceType(service);
             	}
             }
+
         	return result;
         }
 
-        private ComponentInfo getComponentInfo(string key)
+    	private ComponentInfo getComponentInfo(string key)
         {
             return components.FindKey(key);
         }
 
-        private object resolveComponent(ComponentInfo ci)
+    	private object resolveComponent(ComponentInfo ci)
         {
             lock (ci)
             {
@@ -184,7 +210,7 @@ namespace CompactContainer
             }
         }
 
-        private object handleCreateNew(ComponentInfo componentInfo)
+    	private object handleCreateNew(ComponentInfo componentInfo)
         {
             var activator = DefaultActivator;
 

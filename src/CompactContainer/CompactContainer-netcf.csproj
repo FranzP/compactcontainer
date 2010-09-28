@@ -54,8 +54,6 @@
   <ItemGroup>
     <Compile Include="Activators\AttributedActivator.cs" />
     <Compile Include="Activators\DefaultActivator.cs" />
-    <Compile Include="AutoRegisterConventions\ConcreteTypeConvention.cs" />
-    <Compile Include="AutoRegisterConventions\InterfaceTypeConvention.cs" />
     <Compile Include="CompactContainer.cs" />
     <Compile Include="CompactContainerException.cs" />
     <Compile Include="ComponentInfo.cs" />
@@ -69,6 +67,7 @@
     <Compile Include="IActivator.cs" />
     <Compile Include="IAutoRegisterConvention.cs" />
     <Compile Include="ICompactContainer.cs" />
+    <Compile Include="IComponentSelector.cs" />
     <Compile Include="IConstructorResolver.cs" />
     <Compile Include="IDependencyResolver.cs" />
     <Compile Include="InjectAttribute.cs" />

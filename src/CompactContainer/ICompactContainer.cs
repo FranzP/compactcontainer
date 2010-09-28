@@ -27,5 +27,6 @@ namespace CompactContainer
 
 		void RegisterActivator(Type targetType, IActivator activator);
 		void RegisterActivator<T>(IActivator activator);
+		void RegisterComponentSelector(IComponentSelector componentSelector);
 	}
 }

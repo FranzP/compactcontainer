@@ -4,6 +4,6 @@ namespace CompactContainer
 {
 	public interface IAutoRegisterConvention
 	{
-		bool AutoRegisterUnknownType(Type type, ICompactContainer container);
+		bool TryRegisterUnknownType(Type type, ICompactContainer container);
 	}
 }
