@@ -138,17 +138,16 @@ namespace CompactContainer.Tests
 			IComponentA compA1 = new ComponentA();
 
 			container.Register(Component.For<IComponentA>().Instance(compA1));
-			Assert.AreSame(compA1, container.Resolve<IComponentA>());
+			compA1.Should().Be.SameInstanceAs(container.Resolve<IComponentA>());
 
 			container.Register(Component.For<IComponentA>().Instance(compA1).Named("comp.a2"));
-			Assert.AreSame(compA1, container.Resolve<IComponentA>("comp.a2"));
+			compA1.Should().Be.SameInstanceAs(container.Resolve<IComponentA>("comp.a2"));
 		}
 
 		[Test]
-		public void Container_should_register_itself()
+		public void Container_should_not_register_itself()
 		{
-			Assert.AreSame(container, container.Resolve<ICompactContainer>());
-			Assert.AreSame(container, container.Resolve("container"));
+			container.HasComponent(typeof(ICompactContainer)).Should().Be.False();
 		}
 
 		[Test]
