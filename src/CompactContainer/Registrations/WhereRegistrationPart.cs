@@ -7,18 +7,21 @@ namespace CompactContainer.Registrations
 	{
 		private readonly AllTypesRegistration allTypesPart;
 		private readonly Func<Type, bool> typeFilter;
-		private Func<Type, Type> serviceSelector = x => x;
 		private Action<ComponentRegistration> configurationDelegate;
 
 		public WhereRegistrationPart(AllTypesRegistration allTypesPart, Func<Type, bool> typeFilter)
 		{
 			this.allTypesPart = allTypesPart;
 			this.typeFilter = typeFilter;
+
+			ServiceSelector = x => x;
 		}
+
+		protected Func<Type, Type> ServiceSelector { get; set; }
 
 		public WhereRegistrationPart WithService(Func<Type, Type> serviceSelector)
 		{
-			this.serviceSelector = serviceSelector;
+			ServiceSelector = serviceSelector;
 			return this;
 		}
 
@@ -46,19 +49,21 @@ namespace CompactContainer.Registrations
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		void IAllTypesRegistrationPart.ApplyTo(Type type, ICompactContainer container)
 		{
-			if (typeFilter(type))
+			if (!typeFilter(type))
 			{
-				var serviceType = serviceSelector(type);
-				var registration = Component.For(serviceType);
-				registration.ImplementedBy(type);
-
-				if (configurationDelegate != null)
-				{
-					configurationDelegate(registration);
-				}
-
-				registration.Apply(container);
+				return;
 			}
+
+			var serviceType = ServiceSelector(type);
+			var registration = Component.For(serviceType);
+			registration.ImplementedBy(type);
+
+			if (configurationDelegate != null)
+			{
+				configurationDelegate(registration);
+			}
+
+			registration.Apply(container);
 		}
 
 		[EditorBrowsable(EditorBrowsableState.Never)]

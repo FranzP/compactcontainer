@@ -51,15 +51,40 @@ namespace CompactContainer.Tests
 		}
 
 		[Test]
+		public void AllTypes_Where_registration_should_use_implementation_type_as_service()
+		{
+			container.Register(
+				AllTypes.FromAssembly(Assembly.GetExecutingAssembly())
+					.Where(t => typeof(IView).IsAssignableFrom(t))
+				);
+
+			container.HasComponent(typeof(FirstView)).Should().Be.True();
+			container.HasComponent(typeof(SecondView)).Should().Be.True();
+			container.HasComponent(typeof(IView)).Should().Be.False();
+		}
+
+		[Test]
+		public void AllTypes_BasedOn_registration_should_use_based_on_type_as_service()
+		{
+			container.Register(
+				AllTypes.FromAssembly(Assembly.GetExecutingAssembly())
+					.BasedOn<IView>()
+				);
+
+			container.Components.Count(c => c.ServiceTypes.Contains(typeof(IView))).Should().Be.EqualTo(2);
+		}
+
+		[Test]
 		public void AllTypes_registration_should_allow_specification_of_registered_service()
 		{
 			container.Register(
 				AllTypes.FromAssembly(Assembly.GetExecutingAssembly())
-					.BasedOn<IView>().WithService(x => typeof(IView))
+					.BasedOn<IView>().WithService(x => typeof(int))
 				);
 
-			container.Components.Count(c => c.ServiceTypes.Contains(typeof(IView))).Should().Be.Equals(2);
+			container.Components.Count(c => c.ServiceTypes.Contains(typeof(int))).Should().Be.EqualTo(2);
 		}
+
 
 		public interface IView { }
 
