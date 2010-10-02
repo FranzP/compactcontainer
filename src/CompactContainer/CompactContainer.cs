@@ -12,7 +12,7 @@ namespace CompactContainer
     	private readonly List<ComponentInfo> components = new List<ComponentInfo>();
 		private readonly Dictionary<Type, IActivator> activators = new Dictionary<Type, IActivator>();
 		private readonly IList<IComponentSelector> componentSelectors = new List<IComponentSelector>();
-		private readonly IList<IAutoRegisterConvention> autoRegisterConventions = new List<IAutoRegisterConvention>();
+		private readonly IList<IDiscoveryConvention> discoveryConventions = new List<IDiscoveryConvention>();
 
     	public IActivator DefaultActivator { get; set; }
 
@@ -126,9 +126,9 @@ namespace CompactContainer
     		componentSelectors.Add(componentSelector);
     	}
 
-    	public void RegisterAutoRegisterConvention(IAutoRegisterConvention autoRegisterConvention)
+    	public void RegisterDiscoveryConvention(IDiscoveryConvention discoveryConvention)
     	{
-    		autoRegisterConventions.Add(autoRegisterConvention);
+    		discoveryConventions.Add(discoveryConvention);
     	}
 
     	public void Dispose()
@@ -164,7 +164,7 @@ namespace CompactContainer
             {
 				// no matching component registered... try IAutoRegisterConventions
 
-            	if (autoRegisterConventions.Any(c => c.TryRegisterUnknownType(service, this)))
+            	if (discoveryConventions.Any(c => c.TryRegisterUnknownType(service, this)))
             	{
             		result = components.FindServiceType(service);
             	}

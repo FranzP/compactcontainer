@@ -48,10 +48,10 @@
     <Compile Include="Activators\DefaultActivator.cs" />
     <Compile Include="DependencyResolvers\ArrayDependencyResolver.cs" />
     <Compile Include="DependencyResolvers\CompositeDependencyResolver.cs" />
-    <Compile Include="DependencyResolvers\DefaultDependencyResolver.cs" />
+    <Compile Include="DependencyResolvers\SimpleDependencyResolver.cs" />
     <Compile Include="DependencyResolvers\ParameterDependencyResolver.cs" />
     <Compile Include="EnumerableComponentInfoExtensions.cs" />
-    <Compile Include="IAutoRegisterConvention.cs" />
+    <Compile Include="IDiscoveryConvention.cs" />
     <Compile Include="ICompactContainer.cs" />
     <Compile Include="IComponentSelector.cs" />
     <Compile Include="IComponentsInstaller.cs" />

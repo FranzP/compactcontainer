@@ -201,7 +201,7 @@ namespace CompactContainer.Tests
 		[Test]
 		public void Should_auto_register_concrete_type_when_convention_is_registered()
 		{
-			container.RegisterAutoRegisterConvention(new ConcreteTypeConvention());
+			container.RegisterDiscoveryConvention(new ConcreteTypeConvention());
 			var a = container.Resolve<ComponentA>();
 			a.Should().Not.Be.Null();
 		}

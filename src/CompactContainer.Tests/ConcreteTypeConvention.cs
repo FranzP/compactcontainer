@@ -2,7 +2,7 @@
 
 namespace CompactContainer.Tests
 {
-	public class ConcreteTypeConvention : IAutoRegisterConvention
+	public class ConcreteTypeConvention : IDiscoveryConvention
 	{
 		public bool TryRegisterUnknownType(Type type, ICompactContainer container)
 		{

@@ -2,11 +2,11 @@
 
 namespace CompactContainer.DependencyResolvers
 {
-	public class DefaultDependencyResolver : IDependencyResolver
+	public class SimpleDependencyResolver : IDependencyResolver
 	{
 		private readonly ICompactContainer container;
 
-		public DefaultDependencyResolver(ICompactContainer container)
+		public SimpleDependencyResolver(ICompactContainer container)
 		{
 			this.container = container;
 		}
