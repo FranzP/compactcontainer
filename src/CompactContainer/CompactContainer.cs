@@ -56,15 +56,6 @@ namespace CompactContainer
 			components.Add(componentInfo);
 		}
 
-        public void RemoveComponent(string key)
-        {
-            var ci = getComponentInfo(key);
-			if (ci == null)
-				throw new CompactContainerException("There is not any component registered with the given key: \"" + key + "\"");
-
-            components.Remove(ci);
-        }
-
 		public bool HasComponent(Type service)
         {
             var find = getComponentInfo(service);

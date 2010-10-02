@@ -206,23 +206,6 @@ namespace CompactContainer.Tests
 			a.Should().Not.Be.Null();
 		}
 
-		[Test]
-		public void Can_remove_registered_component_by_key()
-		{
-			container.Register(Component.For<IComponentA>().ImplementedBy<ComponentA>().Named("a"));
-
-			container.RemoveComponent("a");
-
-			container.HasComponent("a").Should().Be.False();
-		}
-
-		[Test]
-		public void ThrowsWhenTryingToRemoveNotExistentComponent()
-		{
-			new Action(() => container.RemoveComponent("a")).Should().Throw<CompactContainerException>()
-				.And.Exception.Message.Should().Be.EqualTo("There is not any component registered with the given key: \"a\"");
-		}
-
         [Test]
         public void Singleton_components_should_be_disposed_when_the_container_is_disposed()
         {

@@ -14,7 +14,6 @@ namespace CompactContainer
 		void Install(params IComponentsInstaller[] installers);
 
 		void AddComponentInfo(ComponentInfo componentInfo);
-		void RemoveComponent(string key);
 
 		bool HasComponent(Type service);
 		bool HasComponent(string key);
