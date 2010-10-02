@@ -7,9 +7,6 @@ namespace CompactContainer.Registrations
 {
 	public class ComponentRegistration<TServ> : IRegistration
 	{
-		protected IEnumerable<Type> ServiceTypes;
-
-		private Type implementationType;
 		private LifestyleType? lifestyle;
 		private string name;
 		private object instance;
@@ -25,6 +22,10 @@ namespace CompactContainer.Registrations
 			ServiceTypes = serviceTypes;
 		}
 
+		public IEnumerable<Type> ServiceTypes { get; protected set; }
+
+		public Type ImplementationType { get; protected set; }
+
 		public ComponentRegistration<TServ> Named(string name)
 		{
 			this.name = name;
@@ -39,7 +40,7 @@ namespace CompactContainer.Registrations
 
 		public ComponentRegistration<TServ> ImplementedBy(Type implementationType)
 		{
-			this.implementationType = implementationType;
+			this.ImplementationType = implementationType;
 			name = implementationType.FullName;
 			return this;
 		}
@@ -65,11 +66,11 @@ namespace CompactContainer.Registrations
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		public void Apply(ICompactContainer container)
 		{
-			if (implementationType == null)
+			if (ImplementationType == null)
 			{
 				if (instance != null)
 				{
-					implementationType = instance.GetType();
+					ImplementationType = instance.GetType();
 				}
 				else
 				{
@@ -78,16 +79,16 @@ namespace CompactContainer.Registrations
 						throw new CompactContainerException("Cannot infer implementation type when more than one service is specified: " +
 						                                    ServiceTypes.Select(t => t.Name).ToCommaSeparatedString());
 					}
-					implementationType = ServiceTypes.Single();
+					ImplementationType = ServiceTypes.Single();
 				}
 			}
 
 			// name calculation
 			if (name == null)
 			{
-				if (implementationType != null)
+				if (ImplementationType != null)
 				{
-					name = implementationType.FullName;
+					name = ImplementationType.FullName;
 				}
 				else if (instance != null)
 				{
@@ -103,7 +104,7 @@ namespace CompactContainer.Registrations
 				}
 			}
 
-			var ci = new ComponentInfo(name, ServiceTypes, implementationType, lifestyle ?? container.DefaultLifestyle)
+			var ci = new ComponentInfo(name, ServiceTypes, ImplementationType, lifestyle ?? container.DefaultLifestyle)
 			         	{
 			         		Instance = instance,
 			         	};

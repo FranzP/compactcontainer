@@ -43,11 +43,23 @@ namespace CompactContainer.Tests
 		{
 			container.Register(
 				AllTypes.FromAssembly(Assembly.GetExecutingAssembly())
-					.BasedOn<IView>().WithService(x => x).Configure(cfg => cfg.WithLifestyle(LifestyleType.Transient))
+					.BasedOn<IView>().WithService(x => x).Configure(r => r.WithLifestyle(LifestyleType.Transient))
 				);
 
 			var c1 = container.Components.FindServiceType(typeof (FirstView));
 			c1.Lifestyle.Should().Be.EqualTo(LifestyleType.Transient);
+		}
+
+		[Test]
+		public void AllTypes_registration_should_allow_to_name_each_component()
+		{
+			container.Register(
+				AllTypes.FromAssembly(Assembly.GetExecutingAssembly())
+					.BasedOn<IView>().WithService(x => x).Configure(r => r.Named(r.ImplementationType.Name + "X"))
+				);
+
+			var c1 = container.Components.FindServiceType(typeof(FirstView));
+			c1.Key.Should().Be.EqualTo("FirstViewX");
 		}
 
 		[Test]
