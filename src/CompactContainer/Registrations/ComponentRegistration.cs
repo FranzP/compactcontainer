@@ -119,6 +119,23 @@ namespace CompactContainer.Registrations
 
 			container.AddComponentInfo(ci);
 		}
+
+		public ComponentRegistration<TServ> Forward<T>()
+		{
+			return Forward(typeof (T));
+		}
+
+		public ComponentRegistration<TServ> Forward(Type type)
+		{
+			ServiceTypes = ServiceTypes.Union(new[] { type });
+			return this;
+		}
+
+		public ComponentRegistration<TServ> Apply(Action<ComponentRegistration<TServ>> action)
+		{
+			action(this);
+			return this;
+		}
 	}
 
 	public class ComponentRegistration : ComponentRegistration<object>

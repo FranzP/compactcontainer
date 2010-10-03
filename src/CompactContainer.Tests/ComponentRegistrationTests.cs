@@ -76,6 +76,49 @@ namespace CompactContainer.Tests
 		}
 
 		[Test]
+		public void Can_register_component_with_multiple_service_types_using_forward()
+		{
+			container.Register(
+				Component.For<ComponentA>().ImplementedBy<ComponentA>().Forward<IComponentA>()
+				);
+
+			var ci = container.Components.FindServiceType(typeof(ComponentA));
+			ci.Should().Not.Be.Null();
+			ci.ServiceTypes.Should().Contain(typeof(IComponentA));
+			ci.Classtype.Should().Be.EqualTo(typeof(ComponentA));
+		}
+
+		[Test]
+		public void Can_register_component_with_multiple_service_types_using_non_generic_forward()
+		{
+			container.Register(
+				Component.For<ComponentA>().ImplementedBy<ComponentA>().Forward(typeof(IComponentA))
+				);
+
+			var ci = container.Components.FindServiceType(typeof(ComponentA));
+			ci.Should().Not.Be.Null();
+			ci.ServiceTypes.Should().Contain(typeof(IComponentA));
+			ci.Classtype.Should().Be.EqualTo(typeof(ComponentA));
+		}
+
+		[Test]
+		public void Can_register_component_and_apply_custom_action_to_registration()
+		{
+			container.Register(
+				Component.For<ComponentA>().Apply(r =>
+				                                  	{
+				                                  		r.ImplementedBy<ComponentA>();
+				                                  		r.Forward(typeof (IComponentA));
+				                                  	})
+				);
+
+			var ci = container.Components.FindServiceType(typeof(ComponentA));
+			ci.Should().Not.Be.Null();
+			ci.ServiceTypes.Should().Contain(typeof(IComponentA));
+			ci.Classtype.Should().Be.EqualTo(typeof(ComponentA));
+		}
+
+		[Test]
 		public void Cannot_register_component_with_several_services_and_no_explicit_implementation()
 		{
 			Assert.Throws<CompactContainerException>(() => container.Register(Component.For<ComponentA, IComponentA>()));
