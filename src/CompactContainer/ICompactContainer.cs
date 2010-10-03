@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CompactContainer.Registrations;
 
 namespace CompactContainer
 {
@@ -30,5 +31,6 @@ namespace CompactContainer
 		void RegisterActivator<T>(IActivator activator);
 		void RegisterComponentSelector(IComponentSelector componentSelector);
 		void RegisterDiscoveryConvention(IDiscoveryConvention discoveryConvention);
+		void Register(params IRegistration[] registrations);
 	}
 }
