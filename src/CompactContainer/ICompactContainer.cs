@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using CompactContainer.Registrations;
 
@@ -10,6 +11,7 @@ namespace CompactContainer
 		LifestyleType DefaultLifestyle { get; set; }
 		IDependencyResolver DependencyResolver { get; set; }
 
+		Hashtable Configuration { get; }
 		IEnumerable<ComponentInfo> Components { get; }
 
 		void Install(params IComponentsInstaller[] installers);

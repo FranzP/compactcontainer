@@ -61,6 +61,7 @@
     <Compile Include="ConstructorResolvers\DefaultConstructorResolver.cs" />
     <Compile Include="DependencyResolvers\ArrayDependencyResolver.cs" />
     <Compile Include="DependencyResolvers\CompositeDependencyResolver.cs" />
+    <Compile Include="DependencyResolvers\ConfigurationResolver.cs" />
     <Compile Include="DependencyResolvers\ParameterDependencyResolver.cs" />
     <Compile Include="DependencyResolvers\SimpleDependencyResolver.cs" />
     <Compile Include="EnumerableComponentInfoExtensions.cs" />

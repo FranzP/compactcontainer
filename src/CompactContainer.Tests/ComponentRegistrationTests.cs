@@ -129,8 +129,8 @@ namespace CompactContainer.Tests
 		{
 			container.Register(
 				Component.For<IComponentA>().ImplementedBy<ComponentA>()
-					.With(Parameter.ForKey("p1").EqualsTo("v1"),
-					      Parameter.ForKey("p2").EqualsTo(2)));
+					.With(Parameter.ForKey("p1").Eq("v1"),
+					      Parameter.ForKey("p2").Eq(2)));
 
 			var ci = container.Components.FindServiceType(typeof(IComponentA));
 			ci.Parameters["p1"].Should().Be.EqualTo("v1");

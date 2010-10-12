@@ -11,6 +11,7 @@ namespace CompactContainer.DependencyResolvers
 		public CompositeDependencyResolver(ICompactContainer container)
 		{
 			resolvers.Add(new ParameterDependencyResolver());
+			resolvers.Add(new ConfigurationResolver(container));
 			resolvers.Add(new SimpleDependencyResolver(container));
 			resolvers.Add(new ArrayDependencyResolver(container));
 		}

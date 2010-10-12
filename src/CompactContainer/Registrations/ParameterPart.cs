@@ -12,7 +12,7 @@ namespace CompactContainer.Registrations
 			this.key = key;
 		}
 
-		public ParameterPart EqualsTo(object value)
+		public ParameterPart Eq(object value)
 		{
 			this.value = value;
 			return this;

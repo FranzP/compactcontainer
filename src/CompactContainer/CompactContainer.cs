@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CompactContainer.Activators;
@@ -10,6 +11,7 @@ namespace CompactContainer
     public class CompactContainer : ICompactContainer
     {
     	private readonly List<ComponentInfo> components = new List<ComponentInfo>();
+		private readonly Hashtable configuration = new Hashtable();
 		private readonly Dictionary<Type, IActivator> activators = new Dictionary<Type, IActivator>();
 		private readonly IList<IComponentSelector> componentSelectors = new List<IComponentSelector>();
 		private readonly IList<IDiscoveryConvention> discoveryConventions = new List<IDiscoveryConvention>();
@@ -27,9 +29,14 @@ namespace CompactContainer
             DefaultLifestyle = LifestyleType.Singleton;
         }
 
-        public IEnumerable<ComponentInfo> Components
-        {
-            get { return components; }
+		public Hashtable Configuration
+		{
+			get { return configuration; }
+		}
+
+		public IEnumerable<ComponentInfo> Components
+		{
+			get { return components; }
 		}
 
 		public void Register(params IRegistration[] registrations)

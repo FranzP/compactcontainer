@@ -20,7 +20,7 @@ namespace CompactContainer.Tests
 			var specificCompA = new ComponentA();
 			container.Register(
 				Component.For<IComponentB>().ImplementedBy<ComponentB>()
-					.With(Parameter.ForKey("compA").EqualsTo(specificCompA))
+					.With(Parameter.ForKey("compA").Eq(specificCompA))
 				);
 
 			var compb = container.Resolve<IComponentB>();
@@ -33,7 +33,7 @@ namespace CompactContainer.Tests
 		{
 			container.Register(
 				Component.For<IComponentB>().ImplementedBy<ComponentB>()
-					.With(Parameter.ForKey("compA").EqualsTo("x"))
+					.With(Parameter.ForKey("compA").Eq("x"))
 				);
 
 			var ex = Assert.Throws<CompactContainerException>(() => container.Resolve<IComponentB>());
