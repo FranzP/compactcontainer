@@ -10,9 +10,9 @@ namespace CompactContainer.DependencyResolvers
 
 		public CompositeDependencyResolver(ICompactContainer container)
 		{
+			resolvers.Add(new ParameterDependencyResolver());
 			resolvers.Add(new SimpleDependencyResolver(container));
 			resolvers.Add(new ArrayDependencyResolver(container));
-			resolvers.Add(new ParameterDependencyResolver());
 		}
 
 		public bool CanResolve(string key, Type type, ComponentInfo componentContext)
