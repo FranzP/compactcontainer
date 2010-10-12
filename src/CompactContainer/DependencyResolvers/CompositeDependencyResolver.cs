@@ -6,7 +6,7 @@ namespace CompactContainer.DependencyResolvers
 {
 	public class CompositeDependencyResolver : IDependencyResolver
 	{
-		private readonly List<IDependencyResolver> resolvers = new List<IDependencyResolver>();
+		private readonly IList<IDependencyResolver> resolvers = new List<IDependencyResolver>();
 
 		public CompositeDependencyResolver(ICompactContainer container)
 		{
@@ -24,6 +24,11 @@ namespace CompactContainer.DependencyResolvers
 		{
 			var resolver = resolvers.FirstOrDefault(r => r.CanResolve(key, type, componentContext));
 			return resolver != null ? resolver.Resolve(key, type, componentContext) : null;
+		}
+
+		protected virtual IList<IDependencyResolver> Resolvers
+		{
+			get { return resolvers; }
 		}
 	}
 }
