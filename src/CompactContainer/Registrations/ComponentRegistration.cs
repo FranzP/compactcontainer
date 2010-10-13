@@ -132,7 +132,7 @@ namespace CompactContainer.Registrations
 
 		public ComponentRegistration<TServ> Forward(Type type)
 		{
-			ServiceTypes = ServiceTypes.Union(new[] { type });
+			ServiceTypes = ServiceTypes.Union(new[] { type }).ToArray();
 			return this;
 		}
 
