@@ -148,7 +148,6 @@ namespace CompactContainer.Tests
 			ci.Instance.Should().Be.SameInstanceAs(a);
 		}
 
-
 		[Test]
 		public void Should_throw_when_trying_to_register_abstract_class_as_implementation()
 		{

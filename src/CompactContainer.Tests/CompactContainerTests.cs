@@ -218,6 +218,15 @@ namespace CompactContainer.Tests
 
 			disposable.DisposedCalledCount.Should().Be.EqualTo(1);
         }
+
+		[Test]
+		public void When_more_than_one_component_is_registered_with_same_service_and_there_is_no_component_selector_container_should_default_to_the_first_one()
+		{
+			container.Register(Component.For<IStartable>().ImplementedBy<StartableComponent>().Named("a1"));
+			container.Register(Component.For<IStartable>().ImplementedBy<StartableComponent>().Named("a2"));
+			container.HasComponent(typeof(IStartable)).Should().Be.True();
+		}
+
 	}
 
 	public class StartableActivator : IActivator

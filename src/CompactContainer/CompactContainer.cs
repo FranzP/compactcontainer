@@ -164,8 +164,10 @@ namespace CompactContainer
 			else if (availableComponents.Count() > 1)
 			{
 				var componentSelector = componentSelectors.FirstOrDefault(cs => cs.HasOpinionAbout(service));
-				if (componentSelector != null)
-					result = componentSelector.SelectComponent(service, availableComponents);
+				result = componentSelector != null
+				         	? componentSelector.SelectComponent(service, availableComponents)
+				         	: availableComponents.First();
+
 			}
 			else
             {
