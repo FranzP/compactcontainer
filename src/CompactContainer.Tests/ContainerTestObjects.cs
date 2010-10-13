@@ -4,6 +4,10 @@ namespace CompactContainer.Tests
 	{
 	}
 
+	public abstract class AbstractComponentA : IComponentA
+	{
+	}
+
 	public class ComponentAA : IComponentA
 	{
 	}

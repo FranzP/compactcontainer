@@ -83,6 +83,11 @@ namespace CompactContainer.Registrations
 				}
 			}
 
+			if (ImplementationType.IsAbstract)
+				throw new CompactContainerException("Cannot register implementation type " + ImplementationType.FullName +
+				                                    " because it is abstract");
+
+
 			// name calculation
 			if (name == null)
 			{

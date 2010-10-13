@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using SharpTestsEx;
 
@@ -145,6 +146,16 @@ namespace CompactContainer.Tests
 
 			var ci = container.Components.FindServiceType(typeof(IComponentA));
 			ci.Instance.Should().Be.SameInstanceAs(a);
+		}
+
+
+		[Test]
+		public void Should_throw_when_trying_to_register_abstract_class_as_implementation()
+		{
+			new Action(() => container.Register(Component.For<IComponentA>().ImplementedBy<AbstractComponentA>()))
+				.Should().Throw<CompactContainerException>()
+				.And.Exception.Message.Should().Be.EqualTo(
+					"Cannot register implementation type CompactContainer.Tests.AbstractComponentA because it is abstract");
 		}
 	}
 }
