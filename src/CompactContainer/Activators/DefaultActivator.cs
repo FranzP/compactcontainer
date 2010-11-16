@@ -35,17 +35,23 @@ namespace CompactContainer.Activators
 
 			var result = ctor.Invoke(parameterValues);
 
+			SatisfyOptionalDependencies(componentInfo, result);
+
+			return result;
+		}
+
+		protected virtual void SatisfyOptionalDependencies(ComponentInfo componentInfo, object target)
+		{
 			// property injection - optional dependencies
 
-			var properties = result.GetType().GetProperties().Where(p => p.CanWrite && p.GetSetMethod() != null);
+			var properties = target.GetType().GetProperties().Where(p => p.CanWrite && p.GetSetMethod() != null);
 			foreach (var prop in properties)
 			{
 				if (container.DependencyResolver.CanResolve(prop.Name, prop.PropertyType, componentInfo))
 				{
-					prop.SetValue(result, container.DependencyResolver.Resolve(prop.Name, prop.PropertyType, componentInfo), null);
+					prop.SetValue(target, container.DependencyResolver.Resolve(prop.Name, prop.PropertyType, componentInfo), null);
 				}
 			}
-			return result;
 		}
 	}
 }
