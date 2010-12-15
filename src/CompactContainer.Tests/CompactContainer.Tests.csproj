@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllTypesRegistrationTests.cs" />
+    <Compile Include="CompactContainerEventsTests.cs" />
+    <Compile Include="CompactContainerFacilitiesTests.cs" />
     <Compile Include="CompactContainerTests.cs" />
     <Compile Include="ComponentSelectorTests.cs" />
     <Compile Include="CompositeResolverTests.cs" />

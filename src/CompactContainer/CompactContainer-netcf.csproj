@@ -72,6 +72,7 @@
     <Compile Include="IConstructorResolver.cs" />
     <Compile Include="IDependencyResolver.cs" />
     <Compile Include="IDiscoveryConvention.cs" />
+    <Compile Include="IFacility.cs" />
     <Compile Include="InjectAttribute.cs" />
     <Compile Include="LifestyleType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

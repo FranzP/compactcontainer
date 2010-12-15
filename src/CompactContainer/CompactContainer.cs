@@ -15,6 +15,7 @@ namespace CompactContainer
 		private readonly Dictionary<Type, IActivator> activators = new Dictionary<Type, IActivator>();
 		private readonly IList<IComponentSelector> componentSelectors = new List<IComponentSelector>();
 		private readonly IList<IDiscoveryConvention> discoveryConventions = new List<IDiscoveryConvention>();
+		private readonly IList<IFacility> facilities = new List<IFacility>();
 
     	public IActivator DefaultActivator { get; set; }
 
@@ -47,7 +48,16 @@ namespace CompactContainer
 			}
 		}
 
-		public void Install(params IComponentsInstaller[] installers)
+    	public void AddFacility<T>(T facility) where T : IFacility
+    	{
+			facility.Init(this);
+			facilities.Add(facility);
+    	}
+
+    	public event Action<ComponentInfo> ComponentRegistered = delegate { };
+    	public event Action<ComponentInfo, object> ComponentCreated = delegate { };
+
+    	public void Install(params IComponentsInstaller[] installers)
 		{
 			foreach (var installer in installers)
 			{
@@ -61,6 +71,8 @@ namespace CompactContainer
 				throw new CompactContainerException("A component with the same key is already registered: \"" + componentInfo.Key + "\"");
 
 			components.Add(componentInfo);
+
+			ComponentRegistered(componentInfo);
 		}
 
 		public bool HasComponent(Type service)
@@ -139,17 +151,31 @@ namespace CompactContainer
     	}
 
     	public void Dispose()
-        {
-        	var disposables = components
-        		.Select(component => component.Instance)
-        		.OfType<IDisposable>()
-        		.Where(disposable => disposable != this);
+    	{
+    		terminateFacilities();
+    		disposeDisposableComponents();
+    	}
+
+		private void terminateFacilities()
+		{
+			foreach (var facility in facilities)
+			{
+				facility.Terminate();
+			}
+		}
+
+    	private void disposeDisposableComponents()
+    	{
+    		var disposables = components
+    			.Select(component => component.Instance)
+    			.OfType<IDisposable>()
+    			.Where(disposable => disposable != this);
         	
-			foreach (var disposable in disposables)
-        	{
-        		disposable.Dispose();
-        	}
-        }
+    		foreach (var disposable in disposables)
+    		{
+    			disposable.Dispose();
+    		}
+    	}
 
     	private ComponentInfo getComponentInfo(Type service)
         {
@@ -201,33 +227,37 @@ namespace CompactContainer
                     case (LifestyleType.Singleton):
                         if (ci.Instance == null)
                         {
-                            ci.IsResolvingDependencies = true;
                             ci.Instance = handleCreateNew(ci);
-                            ci.IsResolvingDependencies = false;
                         }
                         return ci.Instance;
 
                     case (LifestyleType.Transient):
-                        ci.IsResolvingDependencies = true;
-                        var result = handleCreateNew(ci);
-                        ci.IsResolvingDependencies = false;
-                        return result;
+                		return handleCreateNew(ci);
                 }
 
                 return null;
             }
         }
 
-    	private object handleCreateNew(ComponentInfo componentInfo)
-        {
-            var activator = DefaultActivator;
+		private object handleCreateNew(ComponentInfo componentInfo)
+		{
+			componentInfo.IsResolvingDependencies = true;
+
+			var activator = DefaultActivator;
 
 			foreach (var pair in activators.Where(pair => pair.Key.IsAssignableFrom(componentInfo.Classtype)))
-            {
-            	activator = pair.Value;
-            	break;
-            }
-			return activator.Create(componentInfo);
-        }
+			{
+				activator = pair.Value;
+				break;
+			}
+
+			var instance = activator.Create(componentInfo);
+
+			componentInfo.IsResolvingDependencies = false;
+
+			ComponentCreated(componentInfo, instance);
+
+			return instance;
+		}
     }
 }

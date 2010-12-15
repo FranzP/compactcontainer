@@ -34,5 +34,10 @@ namespace CompactContainer
 		void RegisterComponentSelector(IComponentSelector componentSelector);
 		void RegisterDiscoveryConvention(IDiscoveryConvention discoveryConvention);
 		void Register(params IRegistration[] registrations);
+
+		void AddFacility<T>(T facility) where T : IFacility;
+
+		event Action<ComponentInfo> ComponentRegistered;
+		event Action<ComponentInfo, object> ComponentCreated;
 	}
 }
