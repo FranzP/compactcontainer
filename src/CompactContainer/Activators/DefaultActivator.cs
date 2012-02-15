@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using CompactContainer.ConstructorResolvers;
 
@@ -33,9 +34,24 @@ namespace CompactContainer.Activators
 				.Select(parameter => container.DependencyResolver.Resolve(parameter.Name, parameter.ParameterType, componentInfo))
 				.ToArray();
 
-			var result = ctor.Invoke(parameterValues);
+			object result = null;
+			try
+			{
+				result = ctor.Invoke(parameterValues);
+			}
+			catch (Exception ex)
+			{
+				throw new CompactContainerException("Error while invoking constructor of type " + componentInfo.Classtype, ex);
+			}
 
-			SatisfyOptionalDependencies(componentInfo, result);
+			try
+			{
+				SatisfyOptionalDependencies(componentInfo, result);
+			}
+			catch (Exception ex)
+			{
+				throw new CompactContainerException("Error while setting optional dependencies for type " + componentInfo.Classtype, ex);
+			}
 
 			return result;
 		}

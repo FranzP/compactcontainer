@@ -7,5 +7,10 @@ namespace CompactContainer
 		public CompactContainerException(string msg) : base(msg)
 		{
 		}
+
+		public CompactContainerException(string msg, Exception inner)
+			: base(msg, inner)
+		{
+		}
 	}
 }
